@@ -269,13 +269,13 @@ function AnnotationLayersList({
     });
   }
 
-  if (canDelete) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      onClick: toggleBulkSelect,
-      buttonStyle: 'secondary',
-    });
-  }
+  // if (canDelete) {
+  //   subMenuButtons.push({
+  //     name: t('Bulk select'),
+  //     onClick: toggleBulkSelect,
+  //     buttonStyle: 'secondary',
+  //   });
+  // }
 
   const filters: Filters = useMemo(
     () => [

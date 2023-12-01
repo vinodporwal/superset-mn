@@ -472,7 +472,7 @@ const RightMenu = ({
           {!navbarRight.user_is_anonymous && [
             <Menu.Divider key="user-divider" />,
             <Menu.ItemGroup key="user-section" title={t('User')}>
-              {navbarRight.user_profile_url && (
+              {/* {navbarRight.user_profile_url && (
                 <Menu.Item key="profile">
                   <Link to={navbarRight.user_profile_url}>{t('Profile')}</Link>
                 </Menu.Item>
@@ -481,7 +481,7 @@ const RightMenu = ({
                 <Menu.Item key="info">
                   <a href={navbarRight.user_info_url}>{t('Info')}</a>
                 </Menu.Item>
-              )}
+              )} */}
               <Menu.Item key="logout">
                 <a href={navbarRight.user_logout_url}>{t('Logout')}</a>
               </Menu.Item>
