@@ -397,7 +397,7 @@ const DndFilterSelect = (props: DndFilterSelectProps) => {
 
   return (
     <>
-      <DndSelectLabel
+      {/* <DndSelectLabel
         onDrop={handleDrop}
         canDrop={canDrop}
         valuesRenderer={valuesRenderer}
@@ -405,7 +405,7 @@ const DndFilterSelect = (props: DndFilterSelectProps) => {
         ghostButtonText={t('Drop columns/metrics here or click')}
         onClickGhostButton={handleClickGhostButton}
         {...props}
-      />
+      /> */}
       <AdhocFilterPopoverTrigger
         adhocFilter={adhocFilter}
         options={options}

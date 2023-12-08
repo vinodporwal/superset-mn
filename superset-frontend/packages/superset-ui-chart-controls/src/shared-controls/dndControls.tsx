@@ -64,7 +64,7 @@ export const dndGroupByControl: SharedControlConfig<
   ColumnMeta
 > = {
   type: 'DndColumnSelect',
-  label: t('Dimensions'),
+  label: t('Y-Axis'),
   multi: true,
   freeForm: true,
   clearable: true,

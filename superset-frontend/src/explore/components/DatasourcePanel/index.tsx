@@ -417,14 +417,14 @@ export default function DataSourcePanel({
                     key={m.metric_name + String(shouldForceUpdate)}
                     className="column"
                   >
-                    {enableExploreDnd ? (
+                    {/* {enableExploreDnd ? (
                       <DatasourcePanelDragOption
                         value={m}
                         type={DndItemType.Metric}
                       />
-                    ) : (
+                    ) : ( */}
                       <StyledMetricOption metric={m} showType />
-                    )}
+                    {/* )} */}
                   </LabelContainer>
                 ))}
                 {lists?.metrics?.length > DEFAULT_MAX_METRICS_LENGTH ? (
@@ -454,14 +454,14 @@ export default function DataSourcePanel({
                   key={col.column_name + String(shouldForceUpdate)}
                   className="column"
                 >
-                  {enableExploreDnd ? (
+                  {/* {enableExploreDnd ? (
                     <DatasourcePanelDragOption
                       value={col as DndItemValue}
                       type={DndItemType.Column}
                     />
-                  ) : (
+                  ) : ( */}
                     <StyledColumnOption column={col as ColumnMeta} showType />
-                  )}
+                  {/* )} */}
                 </LabelContainer>
               ))}
               {lists.columns.length > DEFAULT_MAX_COLUMNS_LENGTH ? (

@@ -268,7 +268,7 @@ const ColumnSelectPopover = ({
           width: ${width}px;
         `}
       >
-        <Tabs.TabPane key="saved" tab={t('Saved')}>
+        {/* <Tabs.TabPane key="saved" tab={t('Saved')}>
           {calculatedColumns.length > 0 ? (
             <FormItem label={savedExpressionsLabel}>
               <StyledSelect
@@ -343,8 +343,8 @@ const ColumnSelectPopover = ({
               }
             />
           )}
-        </Tabs.TabPane>
-        <Tabs.TabPane key="simple" tab={t('Simple')}>
+        </Tabs.TabPane> */}
+        <Tabs.TabPane key="simple" tab={t('My Columns')}>
           {isTemporal && simpleColumns.length === 0 ? (
             <EmptyStateSmall
               image="empty.svg"
@@ -388,7 +388,7 @@ const ColumnSelectPopover = ({
           )}
         </Tabs.TabPane>
 
-        <Tabs.TabPane key="sqlExpression" tab={t('Custom SQL')}>
+        {/* <Tabs.TabPane key="sqlExpression" tab={t('Custom SQL')}>
           <SQLEditor
             value={
               adhocColumn?.sqlExpression ||
@@ -407,7 +407,7 @@ const ColumnSelectPopover = ({
             wrapEnabled
             ref={sqlEditorRef}
           />
-        </Tabs.TabPane>
+        </Tabs.TabPane> */}
       </Tabs>
       <div>
         <Button buttonSize="small" onClick={onResetStateAndClose} cta>

@@ -150,7 +150,7 @@ export const PageHeaderWithActions = ({
       </div>
       <div className="right-button-panel">
         {rightPanelAdditionalItems}
-        <div css={additionalActionsContainerStyles}>
+        {/* <div css={additionalActionsContainerStyles}>
           {showMenuDropdown && (
             <AntdDropdown
               trigger={['click']}
@@ -172,7 +172,7 @@ export const PageHeaderWithActions = ({
               </Button>
             </AntdDropdown>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );

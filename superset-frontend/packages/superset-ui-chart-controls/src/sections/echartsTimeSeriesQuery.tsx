@@ -35,8 +35,8 @@ const controlsWithoutXAxis: ControlSetRow[] = [
   ['timeseries_limit_metric'],
   ['order_desc'],
   ['row_limit'],
-  ['truncate_metric'],
-  ['show_empty_columns'],
+  // ['truncate_metric'],
+  // ['show_empty_columns'],
 ];
 
 export const echartsTimeSeriesQuery: ControlPanelSectionConfig = {

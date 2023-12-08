@@ -411,7 +411,7 @@ class DatasourceControl extends React.PureComponent {
           {extra?.warning_markdown && (
             <WarningIconWithTooltip warningMarkdown={extra.warning_markdown} />
           )}
-          <AntdDropdown
+          {/* <AntdDropdown
             overlay={
               datasource.type === DatasourceType.Query
                 ? queryDatasourceMenu
@@ -424,7 +424,7 @@ class DatasourceControl extends React.PureComponent {
               className="datasource-modal-trigger"
               data-test="datasource-menu-trigger"
             />
-          </AntdDropdown>
+          </AntdDropdown> */}
         </div>
         {/* missing dataset */}
         {isMissingDatasource && isMissingParams && (

@@ -78,7 +78,7 @@ const StyledContainer = styled.div`
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
-    max-width: ${MAX_ADVISABLE_VIZ_GALLERY_WIDTH}px;
+    // max-width: ${MAX_ADVISABLE_VIZ_GALLERY_WIDTH}px;
     max-height: calc(100vh - ${ESTIMATED_NAV_HEIGHT}px);
     border-radius: ${theme.gridUnit}px;
     background-color: ${theme.colors.grayscale.light5};
