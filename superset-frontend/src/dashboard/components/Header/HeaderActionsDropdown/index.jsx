@@ -275,7 +275,7 @@ class HeaderActionsDropdown extends React.PureComponent {
             {t('Edit properties')}
           </Menu.Item>
         )}
-        {editMode && (
+        {/* {editMode && (
           <Menu.Item key={MENU_KEYS.EDIT_CSS}>
             <CssEditor
               triggerNode={<span>{t('Edit CSS')}</span>}
@@ -284,7 +284,7 @@ class HeaderActionsDropdown extends React.PureComponent {
               onChange={this.changeCss}
             />
           </Menu.Item>
-        )}
+        )} */}
         <Menu.Divider />
         {userCanSave && (
           <Menu.Item key={MENU_KEYS.SAVE_MODAL}>
@@ -387,7 +387,7 @@ class HeaderActionsDropdown extends React.PureComponent {
             </Menu.Item>
           )}
 
-        <Menu.Item key={MENU_KEYS.AUTOREFRESH_MODAL}>
+        {/* <Menu.Item key={MENU_KEYS.AUTOREFRESH_MODAL}>
           <RefreshIntervalModal
             addSuccessToast={this.props.addSuccessToast}
             refreshFrequency={refreshFrequency}
@@ -398,7 +398,7 @@ class HeaderActionsDropdown extends React.PureComponent {
             refreshIntervalOptions={refreshIntervalOptions}
             triggerNode={<span>{t('Set auto-refresh interval')}</span>}
           />
-        </Menu.Item>
+        </Menu.Item> */}
       </Menu>
     );
   }

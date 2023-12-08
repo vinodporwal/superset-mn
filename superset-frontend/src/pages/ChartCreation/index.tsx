@@ -348,7 +348,7 @@ export class ChartCreation extends React.PureComponent<
                   showSearch
                   value={this.state.datasource}
                 />
-                {datasetHelpText}
+                {/* {datasetHelpText} */}
               </StyledStepDescription>
             }
           />

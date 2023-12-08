@@ -435,7 +435,7 @@ function DashboardList(props: DashboardListProps) {
                   )}
                 </ConfirmStatusChange>
               )}
-              {canExport && (
+              {/* {canExport && (
                 <Tooltip
                   id="export-action-tooltip"
                   title={t('Export')}
@@ -450,7 +450,7 @@ function DashboardList(props: DashboardListProps) {
                     <Icons.Share />
                   </span>
                 </Tooltip>
-              )}
+              )} */}
               {canEdit && (
                 <Tooltip
                   id="edit-action-tooltip"

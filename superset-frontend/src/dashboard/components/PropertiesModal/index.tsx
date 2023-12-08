@@ -689,19 +689,19 @@ const PropertiesModal = ({
               />
             </FormItem>
           </Col>
-          <Col xs={24} md={12}>
+          {/* <Col xs={24} md={12}>
             <StyledFormItem label={t('URL slug')} name="slug">
               <Input type="text" disabled={isLoading} />
             </StyledFormItem>
             <p className="help-block">
               {t('A readable URL for your dashboard')}
             </p>
-          </Col>
+          </Col> */}
         </Row>
         {isFeatureEnabled(FeatureFlag.DASHBOARD_RBAC)
           ? getRowsWithRoles()
           : getRowsWithoutRoles()}
-        <Row>
+        {/* <Row>
           <Col xs={24} md={24}>
             <h3>{t('Certification')}</h3>
           </Col>
@@ -726,7 +726,7 @@ const PropertiesModal = ({
               {t('Any additional detail to show in the certification tooltip.')}
             </p>
           </Col>
-        </Row>
+        </Row> */}
         {isFeatureEnabled(FeatureFlag.TAGGING_SYSTEM) ? (
           <Row gutter={16}>
             <Col xs={24} md={12}>
@@ -753,7 +753,7 @@ const PropertiesModal = ({
             </Col>
           </Row>
         ) : null}
-        <Row>
+        {/* <Row>
           <Col xs={24} md={24}>
             <h3 style={{ marginTop: '1em' }}>
               <Button
@@ -806,7 +806,7 @@ const PropertiesModal = ({
               </>
             )}
           </Col>
-        </Row>
+        </Row> */}
       </AntdForm>
     </Modal>
   );

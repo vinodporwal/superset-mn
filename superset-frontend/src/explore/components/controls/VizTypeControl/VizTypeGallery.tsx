@@ -144,7 +144,7 @@ const VizPickerLayout = styled.div<{ isSelectedVizMetadata: boolean }>`
       'sidebar search'
       'sidebar main'
       'details details';
-    height: 70vh;
+    height: 58vh;
     overflow: auto;
   `}
 `;
@@ -803,7 +803,7 @@ export default function VizTypeGallery(props: VizTypeGalleryProps) {
         />
       </RightPane>
 
-      {selectedVizMetadata ? (
+      {/* {selectedVizMetadata ? (
         <div
           css={(theme: SupersetTheme) => [
             DetailsPane(theme),
@@ -862,7 +862,7 @@ export default function VizTypeGallery(props: VizTypeGalleryProps) {
             </Examples>
           </>
         </div>
-      ) : null}
+      ) : null} */}
     </VizPickerLayout>
   );
 }
