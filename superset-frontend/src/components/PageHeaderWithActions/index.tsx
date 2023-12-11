@@ -145,10 +145,15 @@ export const PageHeaderWithActions = ({
     <div css={headerStyles} className="header-with-actions">
       <div className="title-panel">
         <div style={{}}>
-          <DynamicEditableTitle {...editableTitleProps} />
-          {editableTitleProps.isDashboardTitleEmpty && (
-            <p className="error">Please add the name of the dashboard</p>
-          )}
+          <div>
+            <DynamicEditableTitle {...editableTitleProps} />
+            {editableTitleProps.isDashboardTitleEmpty && (
+              <p className="error">
+                Please add the name of the dashboard. Click on the [ untitled
+                dashboard ] and edit the default name.
+              </p>
+            )}
+          </div>
         </div>
         {showTitlePanelItems && (
           <div css={buttonsStyles}>
