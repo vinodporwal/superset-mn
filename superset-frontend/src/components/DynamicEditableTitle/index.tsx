@@ -36,6 +36,7 @@ export type DynamicEditableTitleProps = {
   onSave: (title: string) => void;
   canEdit: boolean;
   label: string | undefined;
+  isDashboardTitleEmpty?: boolean;
 };
 
 const titleStyles = (theme: SupersetTheme) => css`

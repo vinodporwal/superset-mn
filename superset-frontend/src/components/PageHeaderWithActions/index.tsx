@@ -1,3 +1,4 @@
+/* eslint-disable theme-colors/no-literal-colors */
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -77,11 +78,17 @@ const headerStyles = (theme: SupersetTheme) => css`
     align-items: center;
     min-width: 0;
     margin-right: ${theme.gridUnit * 12}px;
+    margin-bottom: 0.4rem;
   }
 
   .right-button-panel {
     display: flex;
     align-items: center;
+  }
+
+  .error {
+    color: red;
+    font-size: 0.8rem;
   }
 `;
 
@@ -137,7 +144,12 @@ export const PageHeaderWithActions = ({
   return (
     <div css={headerStyles} className="header-with-actions">
       <div className="title-panel">
-        <DynamicEditableTitle {...editableTitleProps} />
+        <div style={{}}>
+          <DynamicEditableTitle {...editableTitleProps} />
+          {editableTitleProps.isDashboardTitleEmpty && (
+            <p className="error">Please add the name of the dashboard</p>
+          )}
+        </div>
         {showTitlePanelItems && (
           <div css={buttonsStyles}>
             {certificatiedBadgeProps?.certifiedBy && (
