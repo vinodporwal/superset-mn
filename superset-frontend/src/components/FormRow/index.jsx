@@ -37,7 +37,13 @@ const defaultProps = {
   isCheckbox: false,
 };
 
-export default function FormRow({ label, tooltip, control, isCheckbox }) {
+export default function FormRow({
+  label,
+  tooltip,
+  control,
+  isCheckbox,
+  labelAlignment,
+}) {
   const labelAndTooltip = (
     <span>
       {label}{' '}
@@ -53,7 +59,7 @@ export default function FormRow({ label, tooltip, control, isCheckbox }) {
   if (isCheckbox) {
     return (
       <Row style={STYLE_ROW} gutter={16}>
-        <Col xs={24} md={8} style={STYLE_RALIGN}>
+        <Col xs={24} md={8} style={labelAlignment || STYLE_RALIGN}>
           {control}
         </Col>
         <Col xs={24} md={16}>
@@ -64,7 +70,7 @@ export default function FormRow({ label, tooltip, control, isCheckbox }) {
   }
   return (
     <Row style={STYLE_ROW} gutter={16}>
-      <Col xs={24} md={8} style={STYLE_RALIGN}>
+      <Col xs={24} md={8} style={labelAlignment || STYLE_RALIGN}>
         {labelAndTooltip}
       </Col>
       <Col xs={24} md={16}>

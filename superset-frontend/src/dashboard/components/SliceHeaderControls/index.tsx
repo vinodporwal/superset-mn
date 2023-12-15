@@ -22,6 +22,7 @@ import React, {
   ReactChild,
   useState,
   useCallback,
+  useEffect,
 } from 'react';
 import {
   Link,
@@ -52,7 +53,10 @@ import Icons from 'src/components/Icons';
 import ModalTrigger from 'src/components/ModalTrigger';
 import Button from 'src/components/Button';
 import ViewQueryModal from 'src/explore/components/controls/ViewQueryModal';
-import { ResultsPaneOnDashboard } from 'src/explore/components/DataTablesPane';
+import {
+  RaiseTicketModalForm,
+  ResultsPaneOnDashboard,
+} from 'src/explore/components/DataTablesPane';
 import Modal from 'src/components/Modal';
 import { DrillDetailMenuItems } from 'src/components/Chart/DrillDetail';
 import { LOG_ACTIONS_CHART_DOWNLOAD_AS_IMAGE } from 'src/logger/LogUtils';
@@ -246,10 +250,110 @@ const ViewResultsModalTrigger = ({
   );
 };
 
+const ViewRaiseTicketModalTrigger = ({
+  exploreUrl,
+  triggerNode,
+  modalTitle,
+  modalBody,
+}: {
+  exploreUrl: string;
+  triggerNode: ReactChild;
+  modalTitle: ReactChild;
+  modalBody: ReactChild;
+}) => {
+  const [showModal, setShowModal] = useState(false);
+  const openModal = useCallback(() => setShowModal(true), []);
+  const closeModal = useCallback(() => setShowModal(false), []);
+  const history = useHistory();
+  const exploreChart = () => history.push(exploreUrl);
+  const theme = useTheme();
+
+  return (
+    <>
+      <span
+        data-test="span-modal-trigger"
+        onClick={openModal}
+        role="button"
+        tabIndex={0}
+      >
+        {triggerNode}
+      </span>
+      {(() => (
+        <Modal
+          css={css`
+            .ant-modal-body {
+              display: flex;
+              flex-direction: column;
+            }
+          `}
+          show={showModal}
+          onHide={closeModal}
+          title={modalTitle}
+          footer={
+            <>
+              <Button buttonStyle="secondary" buttonSize="small">
+                {t('Submit')}
+              </Button>
+              <Button buttonStyle="primary" buttonSize="small">
+                {t('Close')}
+              </Button>
+            </>
+          }
+          responsive
+          resizable
+          resizableConfig={{
+            minHeight: theme.gridUnit * 128,
+            minWidth: theme.gridUnit * 128,
+            defaultSize: {
+              width: 'auto',
+              height: '60vh',
+            },
+          }}
+          draggable
+          destroyOnClose
+        >
+          {modalBody}
+        </Modal>
+      ))()}
+    </>
+  );
+};
+
 const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
   const [openScopingModal, scopingModal] = useCrossFiltersScopingModal(
     props.slice.slice_id,
   );
+  const [raiseTicketData, setRaiseTicketData] = useState({
+    title: '',
+    description: '',
+    assignTo: [],
+    reviewers: [],
+    priority: '',
+    taskType: '',
+    status: [],
+    natureOfTask: [],
+    site: [],
+    location: [],
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log('******');
+      try {
+        const response = await fetch(
+          'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmployeeMaster?employeeCode=38083',
+        );
+        const result = await response.json();
+        console.error('Result:', result);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        //
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const canEditCrossFilters =
     useSelector<RootState, boolean>(
@@ -467,6 +571,24 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
         )}
 
       {(slice.description || props.supersetCanExplore) && <Menu.Divider />}
+
+      <Menu.Item key={MENU_KEYS.VIEW_RESULTS}>
+        <ViewRaiseTicketModalTrigger
+          exploreUrl={props.exploreUrl}
+          triggerNode={
+            <span data-test="view-query-menu-item">{t('Raise Ticket')}</span>
+          }
+          modalTitle={t('Raise Ticket')}
+          modalBody={
+            <RaiseTicketModalForm
+              setRaiseTicketData={setRaiseTicketData}
+              raiseTicketData={raiseTicketData}
+            />
+          }
+        />
+      </Menu.Item>
+
+      <Menu.Divider />
 
       {supersetCanShare && (
         <Menu.SubMenu title={t('Share')}>
