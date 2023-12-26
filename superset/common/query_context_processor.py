@@ -36,9 +36,9 @@ from superset.common.utils.time_range_utils import (
     get_since_until_from_query_object,
     get_since_until_from_time_range,
 )
-from superset.connectors.base.models import BaseDatasource
+from superset.connectors.sqla.models import BaseDatasource
 from superset.constants import CacheRegion, TimeGrain
-from superset.daos.annotation import AnnotationLayerDAO
+from superset.daos.annotation_layer import AnnotationLayerDAO
 from superset.daos.chart import ChartDAO
 from superset.exceptions import (
     InvalidPostProcessingError,
@@ -282,11 +282,10 @@ class QueryContextProcessor:
         datasource = self._qc_datasource
         labels = tuple(
             label
-            for label in {
+            for label in [
                 *get_base_axis_labels(query_object.columns),
-                *[col for col in query_object.columns or [] if isinstance(col, str)],
                 query_object.granularity,
-            }
+            ]
             if datasource
             # Query datasource didn't support `get_column`
             and hasattr(datasource, "get_column")
@@ -683,7 +682,7 @@ class QueryContextProcessor:
         annotation_layer: dict[str, Any], force: bool
     ) -> dict[str, Any]:
         # pylint: disable=import-outside-toplevel
-        from superset.charts.data.commands.get_data_command import ChartDataCommand
+        from superset.commands.chart.data.get_data_command import ChartDataCommand
 
         if not (chart := ChartDAO.find_by_id(annotation_layer["value"])):
             raise QueryObjectValidationError(_("The chart does not exist"))

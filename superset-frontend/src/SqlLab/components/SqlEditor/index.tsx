@@ -72,6 +72,7 @@ import {
   scheduleQuery,
   setActiveSouthPaneTab,
   updateSavedQuery,
+  formatQuery,
 } from 'src/SqlLab/actions/sqlLab';
 import {
   STATE_TYPE_MAP,
@@ -92,7 +93,7 @@ import {
 } from 'src/utils/localStorageHelpers';
 import { EmptyStateBig } from 'src/components/EmptyState';
 import getBootstrapData from 'src/utils/getBootstrapData';
-import { isEmpty } from 'lodash';
+import { isBoolean, isEmpty } from 'lodash';
 import TemplateParamsEditor from '../TemplateParamsEditor';
 import SouthPane from '../SouthPane';
 import SaveQuery, { QueryPayload } from '../SaveQuery';
@@ -254,7 +255,9 @@ const SqlEditor: React.FC<Props> = ({
     if (unsavedQueryEditor?.id === queryEditor.id) {
       dbId = unsavedQueryEditor.dbId || dbId;
       latestQueryId = unsavedQueryEditor.latestQueryId || latestQueryId;
-      hideLeftBar = unsavedQueryEditor.hideLeftBar || hideLeftBar;
+      hideLeftBar = isBoolean(unsavedQueryEditor.hideLeftBar)
+        ? unsavedQueryEditor.hideLeftBar
+        : hideLeftBar;
     }
     return {
       database: databases[dbId || ''],
@@ -304,6 +307,10 @@ const SqlEditor: React.FC<Props> = ({
     },
     [ctas, database, defaultQueryLimit, dispatch, queryEditor],
   );
+
+  const formatCurrentQuery = useCallback(() => {
+    dispatch(formatQuery(queryEditor));
+  }, [dispatch, queryEditor]);
 
   const stopQuery = useCallback(() => {
     if (latestQuery && ['running', 'pending'].indexOf(latestQuery.state) >= 0) {
@@ -384,8 +391,16 @@ const SqlEditor: React.FC<Props> = ({
             }),
         func: stopQuery,
       },
+      {
+        name: 'formatQuery',
+        key: KeyboardShortcut.CTRL_SHIFT_F,
+        descr: KEY_MAP[KeyboardShortcut.CTRL_SHIFT_F],
+        func: () => {
+          formatCurrentQuery();
+        },
+      },
     ];
-  }, [dispatch, queryEditor.sql, startQuery, stopQuery]);
+  }, [dispatch, queryEditor.sql, startQuery, stopQuery, formatCurrentQuery]);
 
   const hotkeys = useMemo(() => {
     // Get all hotkeys including ace editor hotkeys
@@ -544,10 +559,9 @@ const SqlEditor: React.FC<Props> = ({
     [setQueryEditorAndSaveSql],
   );
 
-  const onSqlChanged = (sql: string) => {
+  const onSqlChanged = useEffectEvent((sql: string) => {
     dispatch(queryEditorSetSql(queryEditor, sql));
-    setQueryEditorAndSaveSqlWithDebounce(sql);
-  };
+  });
 
   // Return the heights for the ace editor and the south pane as an object
   // given the height of the sql editor, north pane percent and south pane percent.
@@ -602,7 +616,7 @@ const SqlEditor: React.FC<Props> = ({
       ? t('Schedule the query periodically')
       : t('You must run the query successfully first');
     return (
-      <Menu css={{ width: theme.gridUnit * 44 }}>
+      <Menu css={{ width: theme.gridUnit * 50 }}>
         <Menu.Item css={{ display: 'flex', justifyContent: 'space-between' }}>
           {' '}
           <span>{t('Autocomplete')}</span>{' '}
@@ -622,6 +636,7 @@ const SqlEditor: React.FC<Props> = ({
             />
           </Menu.Item>
         )}
+        <Menu.Item onClick={formatCurrentQuery}>{t('Format SQL')}</Menu.Item>
         {!isEmpty(scheduledQueriesConf) && (
           <Menu.Item>
             <ScheduleQueryButton
@@ -771,7 +786,7 @@ const SqlEditor: React.FC<Props> = ({
           )}
           <AceEditorWrapper
             autocomplete={autocompleteEnabled}
-            onBlur={setQueryEditorAndSaveSql}
+            onBlur={onSqlChanged}
             onChange={onSqlChanged}
             queryEditorId={queryEditor.id}
             height={`${aceEditorHeight}px`}

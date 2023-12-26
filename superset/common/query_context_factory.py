@@ -29,7 +29,7 @@ from superset.models.slice import Slice
 from superset.utils.core import DatasourceDict, DatasourceType, is_adhoc_column
 
 if TYPE_CHECKING:
-    from superset.connectors.base.models import BaseDatasource
+    from superset.connectors.sqla.models import BaseDatasource
 
 config = app.config
 
@@ -185,7 +185,6 @@ class QueryContextFactory:  # pylint: disable=too-few-public-methods
                     filter
                     for filter in query_object.filter
                     if filter["col"] != filter_to_remove
-                    or filter["op"] != "TEMPORAL_RANGE"
                 ]
 
     def _apply_filters(self, query_object: QueryObject) -> None:
