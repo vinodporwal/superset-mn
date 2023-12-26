@@ -748,12 +748,12 @@ const SqlEditor: React.FC<Props> = ({
               database={database}
             />
           </span>
-          <span>
+          {/* <span>
             <ShareSqlLabQuery queryEditorId={queryEditor.id} />
           </span>
           <AntdDropdown overlay={renderDropdown()} trigger={['click']}>
             <Icons.MoreHoriz iconColor={theme.colors.grayscale.base} />
-          </AntdDropdown>
+          </AntdDropdown> */}
         </div>
       </StyledToolbar>
     );

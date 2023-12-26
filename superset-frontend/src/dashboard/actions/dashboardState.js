@@ -257,7 +257,8 @@ export function saveDashboardRequest(data, id, saveType) {
       certification_details:
         certified_by && certification_details ? certification_details : '',
       css: css || '',
-      dashboard_title: dashboard_title || t('[ untitled dashboard ]'),
+      // dashboard_title: dashboard_title || t('[ untitled dashboard ]'),
+      dashboard_title: dashboard_title || '',
       owners: ensureIsArray(owners).map(o => (hasId(o) ? o.id : o)),
       roles: !isFeatureEnabled(FeatureFlag.DASHBOARD_RBAC)
         ? undefined

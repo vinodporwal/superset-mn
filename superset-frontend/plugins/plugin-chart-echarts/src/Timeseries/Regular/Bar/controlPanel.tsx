@@ -258,8 +258,8 @@ const config: ControlPanelConfig = {
     sections.genericTime,
     sections.echartsTimeSeriesQueryWithXAxisSort,
     sections.advancedAnalyticsControls,
-    sections.annotationsAndLayersControls,
-    sections.forecastIntervalControls,
+    // sections.annotationsAndLayersControls,
+    // sections.forecastIntervalControls,
     {
       label: t('Chart Orientation'),
       expanded: true,

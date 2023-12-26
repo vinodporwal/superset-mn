@@ -339,6 +339,13 @@ const RightMenu = ({
   const handleDatabaseAdd = () => setQuery({ databaseAdded: true });
 
   const theme = useTheme();
+  const hiddenData = [
+    'Action Log',
+    'Row Level Security',
+    'CSS Templates',
+    'Alerts & Report',
+    'Annotation Layers',
+  ];
 
   return (
     <StyledDiv align={align}>
@@ -350,7 +357,7 @@ const RightMenu = ({
           onDatabaseAdd={handleDatabaseAdd}
         />
       )}
-      {environmentTag?.text && (
+      {/* {environmentTag?.text && (
         <Label
           css={{ borderRadius: `${theme.gridUnit * 125}px` }}
           color={
@@ -363,7 +370,7 @@ const RightMenu = ({
         >
           <span css={tagStyles}>{environmentTag.text}</span>
         </Label>
-      )}
+      )} */}
       <Menu
         selectable={false}
         mode="horizontal"
@@ -452,15 +459,17 @@ const RightMenu = ({
                   ) : (
                     child.label
                   );
-                  return (
-                    <Menu.Item key={`${child.label}`}>
-                      {isFrontendRoute(child.url) ? (
-                        <Link to={child.url || ''}>{menuItemDisplay}</Link>
-                      ) : (
-                        <a href={child.url}>{menuItemDisplay}</a>
-                      )}
-                    </Menu.Item>
-                  );
+                  if (!hiddenData?.includes(child?.label)) {
+                    return (
+                      <Menu.Item key={`${child.label}`}>
+                        {isFrontendRoute(child.url) ? (
+                          <Link to={child.url || ''}>{menuItemDisplay}</Link>
+                        ) : (
+                          <a href={child.url}>{menuItemDisplay}</a>
+                        )}
+                      </Menu.Item>
+                    );
+                  }
                 }
                 return null;
               })}
@@ -473,7 +482,7 @@ const RightMenu = ({
           {!navbarRight.user_is_anonymous && [
             <Menu.Divider key="user-divider" />,
             <Menu.ItemGroup key="user-section" title={t('User')}>
-              {navbarRight.user_profile_url && (
+              {/* {navbarRight.user_profile_url && (
                 <Menu.Item key="profile">
                   <Link to={navbarRight.user_profile_url}>{t('Profile')}</Link>
                 </Menu.Item>
@@ -482,7 +491,7 @@ const RightMenu = ({
                 <Menu.Item key="info">
                   <a href={navbarRight.user_info_url}>{t('Info')}</a>
                 </Menu.Item>
-              )}
+              )} */}
               <Menu.Item key="logout">
                 <a href={navbarRight.user_logout_url}>{t('Logout')}</a>
               </Menu.Item>

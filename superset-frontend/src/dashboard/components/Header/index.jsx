@@ -185,6 +185,7 @@ class Header extends React.PureComponent {
       emphasizeRedo: false,
       showingPropertiesModal: false,
       isDropdownVisible: false,
+      isTitleEmpty: false,
     };
 
     this.handleChangeText = this.handleChangeText.bind(this);
@@ -367,6 +368,24 @@ class Header extends React.PureComponent {
       slug,
     } = this.props;
 
+    if (
+      (!dashboardTitle && dashboardTitle === '') ||
+      dashboardTitle === '[ untitled dashboard ]'
+    ) {
+      // eslint-disable-next-line no-alert
+      // alert('Please fill the dashboard title');
+      this.setState({
+        // eslint-disable-next-line react/no-unused-state
+        isTitleEmpty: true,
+      });
+      return;
+    }
+
+    this.setState({
+      // eslint-disable-next-line react/no-unused-state
+      isTitleEmpty: true,
+    });
+
     // check refresh frequency is for current session or persist
     const refreshFrequency = shouldPersistRefreshFrequency
       ? currentRefreshFrequency
@@ -497,222 +516,236 @@ class Header extends React.PureComponent {
 
     const NavExtension = extensionsRegistry.get('dashboard.nav.right');
 
+    console.log('!!!!!!', this.state.isTitleEmpty);
+
+    const checkOnSave = this.state.isTitleEmpty
+      ? !dashboardTitle ||
+        dashboardTitle === '' ||
+        dashboardTitle === '[ untitled dashboard ]'
+      : false;
+
     return (
-      <div
-        css={headerContainerStyle}
-        data-test="dashboard-header-container"
-        data-test-id={dashboardInfo.id}
-        className="dashboard-header-container"
-      >
-        <PageHeaderWithActions
-          editableTitleProps={{
-            title: dashboardTitle,
-            canEdit: userCanEdit && editMode,
-            onSave: this.handleChangeText,
-            placeholder: t('Add the name of the dashboard'),
-            label: t('Dashboard title'),
-            showTooltip: false,
-          }}
-          certificatiedBadgeProps={{
-            certifiedBy: dashboardInfo.certified_by,
-            details: dashboardInfo.certification_details,
-          }}
-          faveStarProps={{
-            itemId: dashboardInfo.id,
-            fetchFaveStar: this.props.fetchFaveStar,
-            saveFaveStar: this.props.saveFaveStar,
-            isStarred: this.props.isStarred,
-            showTooltip: true,
-          }}
-          titlePanelAdditionalItems={[
-            !editMode && (
-              <PublishedStatus
-                dashboardId={dashboardInfo.id}
-                isPublished={isPublished}
-                savePublished={this.props.savePublished}
-                canEdit={userCanEdit}
-                canSave={userCanSaveAs}
-                visible={!editMode}
-              />
-            ),
-          ]}
-          rightPanelAdditionalItems={
-            <div className="button-container">
-              {userCanSaveAs && (
-                <div
-                  className="button-container"
-                  data-test="dashboard-edit-actions"
-                >
-                  {editMode && (
-                    <div css={actionButtonsStyle}>
-                      <div className="undoRedo">
-                        <Tooltip
-                          id="dashboard-undo-tooltip"
-                          title={t('Undo the action')}
-                        >
-                          <StyledUndoRedoButton
-                            type="text"
-                            disabled={undoLength < 1}
-                          >
-                            <Icons.Undo
-                              css={[
-                                undoRedoStyle,
-                                this.state.emphasizeUndo && undoRedoEmphasized,
-                                undoLength < 1 && undoRedoDisabled,
-                              ]}
-                              onClick={undoLength && onUndo}
-                              data-test="undo-action"
-                              iconSize="xl"
-                            />
-                          </StyledUndoRedoButton>
-                        </Tooltip>
-                        <Tooltip
-                          id="dashboard-redo-tooltip"
-                          title={t('Redo the action')}
-                        >
-                          <StyledUndoRedoButton
-                            type="text"
-                            disabled={redoLength < 1}
-                          >
-                            <Icons.Redo
-                              css={[
-                                undoRedoStyle,
-                                this.state.emphasizeRedo && undoRedoEmphasized,
-                                redoLength < 1 && undoRedoDisabled,
-                              ]}
-                              onClick={redoLength && onRedo}
-                              data-test="redo-action"
-                              iconSize="xl"
-                            />
-                          </StyledUndoRedoButton>
-                        </Tooltip>
-                      </div>
-                      <Button
-                        css={discardBtnStyle}
-                        buttonSize="small"
-                        onClick={this.constructor.discardChanges}
-                        buttonStyle="default"
-                        data-test="discard-changes-button"
-                        aria-label={t('Discard')}
-                      >
-                        {t('Discard')}
-                      </Button>
-                      <Button
-                        css={saveBtnStyle}
-                        buttonSize="small"
-                        disabled={!hasUnsavedChanges}
-                        buttonStyle="primary"
-                        onClick={this.overwriteDashboard}
-                        data-test="header-save-button"
-                        aria-label={t('Save')}
-                      >
-                        {t('Save')}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-              {editMode ? (
-                <UndoRedoKeyListeners
-                  onUndo={this.handleCtrlZ}
-                  onRedo={this.handleCtrlY}
+      <>
+        <div
+          css={headerContainerStyle}
+          data-test="dashboard-header-container"
+          data-test-id={dashboardInfo.id}
+          className="dashboard-header-container"
+        >
+          <PageHeaderWithActions
+            editableTitleProps={{
+              title: dashboardTitle,
+              canEdit: userCanEdit && editMode,
+              onSave: this.handleChangeText,
+              placeholder: t('Add the name of the dashboard'),
+              label: t('Dashboard title'),
+              showTooltip: false,
+              isDashboardTitleEmpty: checkOnSave,
+            }}
+            certificatiedBadgeProps={{
+              certifiedBy: dashboardInfo.certified_by,
+              details: dashboardInfo.certification_details,
+            }}
+            faveStarProps={{
+              itemId: dashboardInfo.id,
+              fetchFaveStar: this.props.fetchFaveStar,
+              saveFaveStar: this.props.saveFaveStar,
+              isStarred: this.props.isStarred,
+              showTooltip: true,
+            }}
+            titlePanelAdditionalItems={[
+              !editMode && (
+                <PublishedStatus
+                  dashboardId={dashboardInfo.id}
+                  isPublished={isPublished}
+                  savePublished={this.props.savePublished}
+                  canEdit={userCanEdit}
+                  canSave={userCanSaveAs}
+                  visible={!editMode}
                 />
-              ) : (
-                <div css={actionButtonsStyle}>
-                  {NavExtension && <NavExtension />}
-                  {userCanEdit && (
-                    <Button
-                      buttonStyle="secondary"
-                      onClick={this.toggleEditMode}
-                      data-test="edit-dashboard-button"
-                      className="action-button"
-                      css={editButtonStyle}
-                      aria-label={t('Edit dashboard')}
-                    >
-                      {t('Edit dashboard')}
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-          }
-          menuDropdownProps={{
-            getPopupContainer: triggerNode =>
-              triggerNode.closest('.header-with-actions'),
-            visible: this.state.isDropdownVisible,
-            onVisibleChange: this.setIsDropdownVisible,
-          }}
-          additionalActionsMenu={
-            <HeaderActionsDropdown
-              addSuccessToast={this.props.addSuccessToast}
-              addDangerToast={this.props.addDangerToast}
-              dashboardId={dashboardInfo.id}
-              dashboardTitle={dashboardTitle}
-              dashboardInfo={dashboardInfo}
-              dataMask={dataMask}
-              layout={layout}
-              expandedSlices={expandedSlices}
-              customCss={customCss}
-              colorNamespace={colorNamespace}
-              colorScheme={colorScheme}
-              onSave={onSave}
-              onChange={onChange}
-              forceRefreshAllCharts={this.forceRefresh}
-              startPeriodicRender={this.startPeriodicRender}
-              refreshFrequency={refreshFrequency}
-              shouldPersistRefreshFrequency={shouldPersistRefreshFrequency}
-              setRefreshFrequency={setRefreshFrequency}
-              updateCss={updateCss}
-              editMode={editMode}
-              hasUnsavedChanges={hasUnsavedChanges}
-              userCanEdit={userCanEdit}
-              userCanShare={userCanShare}
-              userCanSave={userCanSaveAs}
-              userCanCurate={userCanCurate}
-              isLoading={isLoading}
-              showPropertiesModal={this.showPropertiesModal}
-              manageEmbedded={this.showEmbedModal}
-              refreshLimit={refreshLimit}
-              refreshWarning={refreshWarning}
-              lastModifiedTime={lastModifiedTime}
-              isDropdownVisible={this.state.isDropdownVisible}
-              setIsDropdownVisible={this.setIsDropdownVisible}
-              logEvent={logEvent}
-            />
-          }
-          showFaveStar={user?.userId && dashboardInfo?.id}
-          showTitlePanelItems
-        />
-        {this.state.showingPropertiesModal && (
-          <PropertiesModal
-            dashboardId={dashboardInfo.id}
-            dashboardInfo={dashboardInfo}
-            dashboardTitle={dashboardTitle}
-            show={this.state.showingPropertiesModal}
-            onHide={this.hidePropertiesModal}
-            colorScheme={this.props.colorScheme}
-            onSubmit={handleOnPropertiesChange}
-            onlyApply
-          />
-        )}
-
-        <OverwriteConfirm />
-
-        {userCanCurate && (
-          <DashboardEmbedModal
-            show={this.state.showingEmbedModal}
-            onHide={this.hideEmbedModal}
-            dashboardId={dashboardInfo.id}
-          />
-        )}
-        <Global
-          styles={css`
-            .ant-menu-vertical {
-              border-right: none;
+              ),
+            ]}
+            rightPanelAdditionalItems={
+              <div className="button-container">
+                {userCanSaveAs && (
+                  <div
+                    className="button-container"
+                    data-test="dashboard-edit-actions"
+                  >
+                    {editMode && (
+                      <div css={actionButtonsStyle}>
+                        <div className="undoRedo">
+                          <Tooltip
+                            id="dashboard-undo-tooltip"
+                            title={t('Undo the action')}
+                          >
+                            <StyledUndoRedoButton
+                              type="text"
+                              disabled={undoLength < 1}
+                            >
+                              <Icons.Undo
+                                css={[
+                                  undoRedoStyle,
+                                  this.state.emphasizeUndo &&
+                                    undoRedoEmphasized,
+                                  undoLength < 1 && undoRedoDisabled,
+                                ]}
+                                onClick={undoLength && onUndo}
+                                data-test="undo-action"
+                                iconSize="xl"
+                              />
+                            </StyledUndoRedoButton>
+                          </Tooltip>
+                          <Tooltip
+                            id="dashboard-redo-tooltip"
+                            title={t('Redo the action')}
+                          >
+                            <StyledUndoRedoButton
+                              type="text"
+                              disabled={redoLength < 1}
+                            >
+                              <Icons.Redo
+                                css={[
+                                  undoRedoStyle,
+                                  this.state.emphasizeRedo &&
+                                    undoRedoEmphasized,
+                                  redoLength < 1 && undoRedoDisabled,
+                                ]}
+                                onClick={redoLength && onRedo}
+                                data-test="redo-action"
+                                iconSize="xl"
+                              />
+                            </StyledUndoRedoButton>
+                          </Tooltip>
+                        </div>
+                        <Button
+                          css={discardBtnStyle}
+                          buttonSize="small"
+                          onClick={this.constructor.discardChanges}
+                          buttonStyle="default"
+                          data-test="discard-changes-button"
+                          aria-label={t('Discard')}
+                        >
+                          {t('Discard')}
+                        </Button>
+                        <Button
+                          css={saveBtnStyle}
+                          buttonSize="small"
+                          // disabled={!hasUnsavedChanges}
+                          disabled={false}
+                          buttonStyle="primary"
+                          onClick={this.overwriteDashboard}
+                          data-test="header-save-button"
+                          aria-label={t('Save')}
+                        >
+                          {t('Save')}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {editMode ? (
+                  <UndoRedoKeyListeners
+                    onUndo={this.handleCtrlZ}
+                    onRedo={this.handleCtrlY}
+                  />
+                ) : (
+                  <div css={actionButtonsStyle}>
+                    {NavExtension && <NavExtension />}
+                    {userCanEdit && (
+                      <Button
+                        buttonStyle="secondary"
+                        onClick={this.toggleEditMode}
+                        data-test="edit-dashboard-button"
+                        className="action-button"
+                        css={editButtonStyle}
+                        aria-label={t('Edit dashboard')}
+                      >
+                        {t('Edit dashboard')}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             }
-          `}
-        />
-      </div>
+            menuDropdownProps={{
+              getPopupContainer: triggerNode =>
+                triggerNode.closest('.header-with-actions'),
+              visible: this.state.isDropdownVisible,
+              onVisibleChange: this.setIsDropdownVisible,
+            }}
+            additionalActionsMenu={
+              <HeaderActionsDropdown
+                addSuccessToast={this.props.addSuccessToast}
+                addDangerToast={this.props.addDangerToast}
+                dashboardId={dashboardInfo.id}
+                dashboardTitle={dashboardTitle}
+                dashboardInfo={dashboardInfo}
+                dataMask={dataMask}
+                layout={layout}
+                expandedSlices={expandedSlices}
+                customCss={customCss}
+                colorNamespace={colorNamespace}
+                colorScheme={colorScheme}
+                onSave={onSave}
+                onChange={onChange}
+                forceRefreshAllCharts={this.forceRefresh}
+                startPeriodicRender={this.startPeriodicRender}
+                refreshFrequency={refreshFrequency}
+                shouldPersistRefreshFrequency={shouldPersistRefreshFrequency}
+                setRefreshFrequency={setRefreshFrequency}
+                updateCss={updateCss}
+                editMode={editMode}
+                hasUnsavedChanges={hasUnsavedChanges}
+                userCanEdit={userCanEdit}
+                userCanShare={userCanShare}
+                userCanSave={userCanSaveAs}
+                userCanCurate={userCanCurate}
+                isLoading={isLoading}
+                showPropertiesModal={this.showPropertiesModal}
+                manageEmbedded={this.showEmbedModal}
+                refreshLimit={refreshLimit}
+                refreshWarning={refreshWarning}
+                lastModifiedTime={lastModifiedTime}
+                isDropdownVisible={this.state.isDropdownVisible}
+                setIsDropdownVisible={this.setIsDropdownVisible}
+                logEvent={logEvent}
+              />
+            }
+            showFaveStar={user?.userId && dashboardInfo?.id}
+            showTitlePanelItems
+          />
+          {this.state.showingPropertiesModal && (
+            <PropertiesModal
+              dashboardId={dashboardInfo.id}
+              dashboardInfo={dashboardInfo}
+              dashboardTitle={dashboardTitle}
+              show={this.state.showingPropertiesModal}
+              onHide={this.hidePropertiesModal}
+              colorScheme={this.props.colorScheme}
+              onSubmit={handleOnPropertiesChange}
+              onlyApply
+            />
+          )}
+
+          <OverwriteConfirm />
+
+          {userCanCurate && (
+            <DashboardEmbedModal
+              show={this.state.showingEmbedModal}
+              onHide={this.hideEmbedModal}
+              dashboardId={dashboardInfo.id}
+            />
+          )}
+          <Global
+            styles={css`
+              .ant-menu-vertical {
+                border-right: none;
+              }
+            `}
+          />
+        </div>
+      </>
     );
   }
 }

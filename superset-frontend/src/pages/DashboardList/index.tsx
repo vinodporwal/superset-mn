@@ -119,6 +119,11 @@ function DashboardList(props: DashboardListProps) {
   );
   const canReadTag = findPermission('can_read', 'Tag', roles);
 
+  const { roles } = useSelector<any, UserWithPermissionsAndRoles>(
+    state => state.user,
+  );
+  const canReadTag = findPermission('can_read', 'Tag', roles);
+
   const {
     state: {
       loading,
@@ -416,7 +421,7 @@ function DashboardList(props: DashboardListProps) {
                   )}
                 </ConfirmStatusChange>
               )}
-              {canExport && (
+              {/* {canExport && (
                 <Tooltip
                   id="export-action-tooltip"
                   title={t('Export')}
@@ -431,7 +436,7 @@ function DashboardList(props: DashboardListProps) {
                     <Icons.Share />
                   </span>
                 </Tooltip>
-              )}
+              )} */}
               {canEdit && (
                 <Tooltip
                   id="edit-action-tooltip"
@@ -582,6 +587,17 @@ function DashboardList(props: DashboardListProps) {
         paginate: true,
       },
     ] as Filters;
+    if (isFeatureEnabled(FeatureFlag.TAGGING_SYSTEM) && canReadTag) {
+      filters_list.push({
+        Header: t('Tags'),
+        key: 'tags',
+        id: 'tags',
+        input: 'select',
+        operator: FilterOperator.dashboardTags,
+        unfilteredLabel: t('All'),
+        fetchSelects: loadTags,
+      });
+    }
     return filters_list;
   }, [addDangerToast, favoritesFilter, props.user]);
 
@@ -638,14 +654,14 @@ function DashboardList(props: DashboardListProps) {
   );
 
   const subMenuButtons: SubMenuProps['buttons'] = [];
-  if (canDelete || canExport) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      buttonStyle: 'secondary',
-      'data-test': 'bulk-select',
-      onClick: toggleBulkSelect,
-    });
-  }
+  // if (canDelete || canExport) {
+  //   subMenuButtons.push({
+  //     name: t('Bulk select'),
+  //     buttonStyle: 'secondary',
+  //     'data-test': 'bulk-select',
+  //     onClick: toggleBulkSelect,
+  //   });
+  // }
   if (canCreate) {
     subMenuButtons.push({
       name: (
@@ -659,21 +675,21 @@ function DashboardList(props: DashboardListProps) {
       },
     });
 
-    if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
-      subMenuButtons.push({
-        name: (
-          <Tooltip
-            id="import-tooltip"
-            title={t('Import dashboards')}
-            placement="bottomRight"
-          >
-            <Icons.Import data-test="import-button" />
-          </Tooltip>
-        ),
-        buttonStyle: 'link',
-        onClick: openDashboardImportModal,
-      });
-    }
+    // if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
+    //   subMenuButtons.push({
+    //     name: (
+    //       <Tooltip
+    //         id="import-tooltip"
+    //         title={t('Import dashboards')}
+    //         placement="bottomRight"
+    //       >
+    //         <Icons.Import data-test="import-button" />
+    //       </Tooltip>
+    //     ),
+    //     buttonStyle: 'link',
+    //     onClick: openDashboardImportModal,
+    //   });
+    // }
   }
   return (
     <>

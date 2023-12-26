@@ -144,7 +144,7 @@ const VizPickerLayout = styled.div<{ isSelectedVizMetadata: boolean }>`
       'sidebar search'
       'sidebar main'
       'details details';
-    height: 70vh;
+    height: 58vh;
     overflow: auto;
   `}
 `;
@@ -162,7 +162,8 @@ const LeftPane = styled.div`
   display: flex;
   flex-direction: column;
   border-right: 1px solid ${({ theme }) => theme.colors.grayscale.light2};
-  overflow: auto;
+  height: 58vh;
+  overflow-y: scroll;
 
   .ant-collapse .ant-collapse-item {
     .ant-collapse-header {
@@ -181,7 +182,6 @@ const LeftPane = styled.div`
 
 const RightPane = styled.div`
   grid-area: main;
-  overflow-y: auto;
 `;
 
 const SearchWrapper = styled.div`
@@ -803,7 +803,7 @@ export default function VizTypeGallery(props: VizTypeGalleryProps) {
         />
       </RightPane>
 
-      {selectedVizMetadata ? (
+      {/* {selectedVizMetadata ? (
         <div
           css={(theme: SupersetTheme) => [
             DetailsPane(theme),
@@ -863,7 +863,7 @@ export default function VizTypeGallery(props: VizTypeGalleryProps) {
             </Examples>
           </>
         </div>
-      ) : null}
+      ) : null} */}
     </VizPickerLayout>
   );
 }

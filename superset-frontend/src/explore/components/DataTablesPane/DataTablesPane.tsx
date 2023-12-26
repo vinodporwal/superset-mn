@@ -233,7 +233,7 @@ export const DataTablesPane = ({
         onTabClick={handleTabClick}
       >
         {queryResultsPanes}
-        <Tabs.TabPane tab={t('Samples')} key={ResultTypes.Samples}>
+        {/* <Tabs.TabPane tab={t('Samples')} key={ResultTypes.Samples}>
           <SamplesPane
             datasource={datasource}
             queryForce={queryForce}
@@ -241,7 +241,7 @@ export const DataTablesPane = ({
             actions={actions}
             isVisible={ResultTypes.Samples === activeTabKey}
           />
-        </Tabs.TabPane>
+        </Tabs.TabPane> */}
       </Tabs>
     </SouthPane>
   );

@@ -135,9 +135,13 @@ type Routes = {
 }[];
 
 export const routes: Routes = [
+  // {
+  //   path: '/superset/welcome/',
+  //   Component: Home,
+  // },
   {
     path: '/superset/welcome/',
-    Component: Home,
+    Component: DashboardList,
   },
   {
     path: '/dashboard/list/',

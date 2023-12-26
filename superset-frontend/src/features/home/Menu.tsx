@@ -35,6 +35,7 @@ import {
   MenuData,
 } from 'src/types/bootstrapTypes';
 import RightMenu from './RightMenu';
+import logo from '../../assets/images/suzlon-logo.png';
 
 interface MenuProps {
   data: MenuData;
@@ -307,11 +308,13 @@ export function Menu({
           >
             {isFrontendRoute(window.location.pathname) ? (
               <GenericLink className="navbar-brand" to={brand.path}>
-                <img src={brand.icon} alt={brand.alt} />
+                {/* <img src={brand.icon} alt={brand.alt} /> */}
+                <img src={logo} alt="Suzlon Logo" />
               </GenericLink>
             ) : (
               <a className="navbar-brand" href={brand.path}>
-                <img src={brand.icon} alt={brand.alt} />
+                {/* <img src={brand.icon} alt={brand.alt} /> */}
+                <img src={logo} alt="Suzlon Logo" />
               </a>
             )}
           </Tooltip>

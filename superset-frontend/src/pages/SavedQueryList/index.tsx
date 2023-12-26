@@ -57,7 +57,10 @@ import ImportModelsModal from 'src/components/ImportModal/index';
 import { ModifiedInfo } from 'src/components/AuditInfo';
 import { loadTags } from 'src/components/Tags/utils';
 import Icons from 'src/components/Icons';
-import { UserWithPermissionsAndRoles } from 'src/types/bootstrapTypes';
+import {
+  BootstrapUser,
+  UserWithPermissionsAndRoles,
+} from 'src/types/bootstrapTypes';
 import SavedQueryPreviewModal from 'src/features/queries/SavedQueryPreviewModal';
 import { findPermission } from 'src/utils/findPermission';
 
@@ -187,13 +190,13 @@ function SavedQueryList({
 
   const subMenuButtons: Array<ButtonProps> = [];
 
-  if (canDelete) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      onClick: toggleBulkSelect,
-      buttonStyle: 'secondary',
-    });
-  }
+  // if (canDelete) {
+  //   subMenuButtons.push({
+  //     name: t('Bulk select'),
+  //     onClick: toggleBulkSelect,
+  //     buttonStyle: 'secondary',
+  //   });
+  // }
 
   subMenuButtons.push({
     name: (
@@ -204,23 +207,23 @@ function SavedQueryList({
     buttonStyle: 'primary',
   });
 
-  if (canCreate && isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
-    subMenuButtons.push({
-      name: (
-        <Tooltip
-          id="import-tooltip"
-          title={t('Import queries')}
-          placement="bottomRight"
-          data-test="import-tooltip-test"
-        >
-          <Icons.Import data-test="import-icon" />
-        </Tooltip>
-      ),
-      buttonStyle: 'link',
-      onClick: openSavedQueryImportModal,
-      'data-test': 'import-button',
-    });
-  }
+  // if (canCreate && isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
+  //   subMenuButtons.push({
+  //     name: (
+  //       <Tooltip
+  //         id="import-tooltip"
+  //         title={t('Import queries')}
+  //         placement="bottomRight"
+  //         data-test="import-tooltip-test"
+  //       >
+  //         <Icons.Import data-test="import-icon" />
+  //       </Tooltip>
+  //     ),
+  //     buttonStyle: 'link',
+  //     onClick: openSavedQueryImportModal,
+  //     'data-test': 'import-button',
+  //   });
+  // }
 
   menuData.buttons = subMenuButtons;
 
@@ -489,41 +492,27 @@ function SavedQueryList({
         ),
         paginate: true,
       },
-      ...((isFeatureEnabled(FeatureFlag.TAGGING_SYSTEM) && canReadTag
-        ? [
-            {
-              Header: t('Tag'),
-              id: 'tags',
-              key: 'tags',
-              input: 'select',
-              operator: FilterOperator.savedQueryTags,
-              fetchSelects: loadTags,
-            },
-          ]
-        : []) as Filters),
+
       {
-        Header: t('Modified by'),
-        key: 'changed_by',
-        id: 'changed_by',
-        input: 'select',
-        operator: FilterOperator.relationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'saved_query',
-          'changed_by',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching dataset datasource values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        paginate: true,
+        Header: t('Search'),
+        id: 'label',
+        key: 'search',
+        input: 'search',
+        operator: FilterOperator.allText,
       },
     ],
     [addDangerToast],
   );
+
+  if (isFeatureEnabled(FeatureFlag.TAGGING_SYSTEM) && canReadTag) {
+    filters.push({
+      Header: t('Tags'),
+      id: 'tags',
+      key: 'tags',
+      input: 'search',
+      operator: FilterOperator.savedQueryTags,
+    });
+  }
 
   return (
     <>

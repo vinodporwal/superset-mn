@@ -29,6 +29,7 @@ import {
 import React, { useState, useMemo, useCallback } from 'react';
 import rison from 'rison';
 import { uniqBy } from 'lodash';
+import moment from 'moment';
 import { useSelector } from 'react-redux';
 import {
   createErrorHandler,
@@ -760,14 +761,14 @@ function ChartList(props: ChartListProps) {
   );
 
   const subMenuButtons: SubMenuProps['buttons'] = [];
-  if (canDelete || canExport) {
-    subMenuButtons.push({
-      name: t('Bulk select'),
-      buttonStyle: 'secondary',
-      'data-test': 'bulk-select',
-      onClick: toggleBulkSelect,
-    });
-  }
+  // if (canDelete || canExport) {
+  //   subMenuButtons.push({
+  //     name: t('Bulk select'),
+  //     buttonStyle: 'secondary',
+  //     'data-test': 'bulk-select',
+  //     onClick: toggleBulkSelect,
+  //   });
+  // }
   if (canCreate) {
     subMenuButtons.push({
       name: (
@@ -781,21 +782,21 @@ function ChartList(props: ChartListProps) {
       },
     });
 
-    if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
-      subMenuButtons.push({
-        name: (
-          <Tooltip
-            id="import-tooltip"
-            title={t('Import charts')}
-            placement="bottomRight"
-          >
-            <Icons.Import data-test="import-button" />
-          </Tooltip>
-        ),
-        buttonStyle: 'link',
-        onClick: openChartImportModal,
-      });
-    }
+    // if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
+    //   subMenuButtons.push({
+    //     name: (
+    //       <Tooltip
+    //         id="import-tooltip"
+    //         title={t('Import charts')}
+    //         placement="bottomRight"
+    //       >
+    //         <Icons.Import data-test="import-button" />
+    //       </Tooltip>
+    //     ),
+    //     buttonStyle: 'link',
+    //     onClick: openChartImportModal,
+    //   });
+    // }
   }
 
   return (

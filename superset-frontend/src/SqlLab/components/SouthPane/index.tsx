@@ -245,13 +245,13 @@ const SouthPane = ({
         <Tabs.TabPane tab={t('Results')} key="Results">
           {renderResults()}
         </Tabs.TabPane>
-        <Tabs.TabPane tab={t('Query history')} key="History">
+        {/* <Tabs.TabPane tab={t('Query history')} key="History">
           <QueryHistory
             queries={editorQueries}
             displayLimit={displayLimit}
             latestQueryId={latestQueryId}
           />
-        </Tabs.TabPane>
+        </Tabs.TabPane> */}
         {renderDataPreviewTabs()}
       </Tabs>
     </StyledPane>

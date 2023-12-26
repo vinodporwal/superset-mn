@@ -379,7 +379,7 @@ export default class AdhocMetricEditPopover extends React.PureComponent {
           onChange={this.onTabChange}
           allowOverflow
         >
-          <Tabs.TabPane key={SAVED_TAB_KEY} tab={t('Saved')}>
+          {/* <Tabs.TabPane key={SAVED_TAB_KEY} tab={t('Saved')}>
             {ensureIsArray(savedMetricsOptions).length > 0 ? (
               <FormItem label={t('Saved metric')}>
                 <StyledSelect
@@ -423,7 +423,7 @@ export default class AdhocMetricEditPopover extends React.PureComponent {
                 }
               />
             )}
-          </Tabs.TabPane>
+          </Tabs.TabPane> */}
           <Tabs.TabPane
             key={EXPRESSION_TYPES.SIMPLE}
             tab={
@@ -433,10 +433,10 @@ export default class AdhocMetricEditPopover extends React.PureComponent {
                     'Simple ad-hoc metrics are not enabled for this dataset',
                   )}
                 >
-                  {t('Simple')}
+                  {t('My Columns')}
                 </Tooltip>
               ) : (
-                t('Simple')
+                t('My Columns')
               )
             }
             disabled={extra.disallow_adhoc_metrics}
@@ -463,7 +463,7 @@ export default class AdhocMetricEditPopover extends React.PureComponent {
               />
             </FormItem>
           </Tabs.TabPane>
-          <Tabs.TabPane
+          {/* <Tabs.TabPane
             key={EXPRESSION_TYPES.SQL}
             tab={
               extra.disallow_adhoc_metrics ? (
@@ -499,7 +499,7 @@ export default class AdhocMetricEditPopover extends React.PureComponent {
               className="filter-sql-editor"
               wrapEnabled
             />
-          </Tabs.TabPane>
+          </Tabs.TabPane> */}
         </Tabs>
         <div>
           <Button
