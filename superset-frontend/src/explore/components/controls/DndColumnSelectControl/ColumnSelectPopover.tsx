@@ -405,15 +405,29 @@ const ColumnSelectPopover = ({
                 onChange={onSimpleColumnChange}
                 allowClear
                 autoFocus={!selectedSimpleColumn}
-                placeholder={t('%s column(s)', simpleColumns.length)}
-                options={simpleColumns.map(simpleColumn => ({
-                  value: simpleColumn.column_name,
-                  label: simpleColumn.verbose_name || simpleColumn.column_name,
-                  customLabel: (
-                    <StyledColumnOption column={simpleColumn} showType />
-                  ),
-                  key: simpleColumn.column_name,
-                }))}
+                placeholder={t(
+                  '%s column(s)',
+                  simpleColumns.some(column => column.hasOwnProperty('is_type'))
+                    ? simpleColumns.filter(column => column.is_type === 'x_axis').length
+                    : simpleColumns.length
+                )}                                              
+                options={simpleColumns
+                  .filter(simpleColumn => {
+                    if (simpleColumn.hasOwnProperty('is_type')) {
+                      return simpleColumn.is_type === 'x_axis'; // Filter based on is_type if it exists
+                    }
+                    return true; // If is_type doesn't exist, include the data
+                  })
+                  .map(filteredColumn => ({
+                    value: filteredColumn.column_name,
+                    label: filteredColumn.verbose_name || filteredColumn.column_name,
+                    customLabel: (
+                      <StyledColumnOption column={filteredColumn} showType />
+                    ),
+                    key: filteredColumn.column_name,
+                  }))
+                }
+                
               />
             </FormItem>
           )}
