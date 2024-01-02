@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { t, styled } from '@superset-ui/core';
 import { Input, TextArea } from 'src/components/Input';
 import FormRow from 'src/components/FormRow';
@@ -25,28 +25,43 @@ import { Select } from 'antd';
 export function RaiseTicketModalForm({
   raiseTicketData,
   setRaiseTicketData,
+  handleDropdownChange,
+  handleSiteDropdownChange,
 }: any) {
+  interface StatusItem {
+    masterName: string;
+    // Add other properties if present in your actual data structure
+  }
+
+  
+  interface RaiseTicketData {
+    title: string;
+    description: string;
+    assignTo: any[]; // Adjust type based on your actual data structure
+    reviewers: any[]; // Adjust type based on your actual data structure
+    priority: any[];
+    taskType: any[];
+    status:StatusItem[];
+    natureOfTask: any[]; // Adjust type based on your actual data structure
+    site: any[]; // Adjust type based on your actual data structure
+    location: any[]; // Adjust type based on your actual data structure
+  }
+  const [raiseTicketDataValue, setRaiseTicketDataValue] = useState<RaiseTicketData>({
+    title: '',
+    description: '',
+    assignTo: [],
+    reviewers: [],
+    priority: [],
+    taskType: [],
+    status: [],
+    natureOfTask: [],
+    site: [],
+    location: [],
+  });
+  console.log('selectedOption',raiseTicketDataValue)
+
   return (
     <div>
-      <FormRow
-        label={t('Task Type')}
-        labelAlignment={{ textAlign: 'left' }}
-        control={
-          <Input
-            name="ticket_task_type"
-            type="text"
-            placeholder="Task Type"
-            value={raiseTicketData?.taskType}
-            onChange={e => {
-              setRaiseTicketData({
-                ...raiseTicketData,
-                taskType: e.target.value,
-              });
-            }}
-            data-test="ticket_task_type"
-          />
-        }
-      />
 
       <FormRow
         label={t('Title')}
@@ -84,6 +99,56 @@ export function RaiseTicketModalForm({
         }
       />
 
+    
+<FormRow
+        label={t('Task Type')}
+        labelAlignment={{ textAlign: 'left' }}
+        control={
+          <Select
+            allowClear
+            data-test="ticket_status"
+            labelInValue
+            options={raiseTicketData.taskType.map((statusItem:any) => ({
+              label: statusItem.masterName,
+              value: statusItem.masterName, // Adjust value as needed
+            }))}
+            placeholder={t('Task Type')}
+            showSearch
+            value={
+              raiseTicketDataValue.taskType.length > 0
+                ? {
+                    label: raiseTicketDataValue.taskType[0].masterName,
+                    value: raiseTicketDataValue.taskType[0].masterName,
+                  }
+                : undefined
+            }
+      onDropdownVisibleChange={(open) => {
+        if (open) {
+          const type='Task Type'
+          handleDropdownChange(type);
+        }
+      }}
+           onChange={(selectedOption) => {
+         
+        if (
+          selectedOption &&
+          typeof selectedOption === 'object' &&
+          selectedOption !== null
+        ) {
+        
+          setRaiseTicketDataValue({
+            ...raiseTicketDataValue,
+            taskType: selectedOption ? [{ masterName: selectedOption.label }] : [],
+          });
+          // Perform other actions using selectedOption
+        }
+      }}
+            style={{ width: '100%' }}
+          />
+        }
+      />
+    
+
       <FormRow
         label={t('Status')}
         labelAlignment={{ textAlign: 'left' }}
@@ -92,16 +157,43 @@ export function RaiseTicketModalForm({
             allowClear
             data-test="ticket_status"
             labelInValue
-            options={[]}
+            options={raiseTicketData.status.map((statusItem:any) => ({
+              label: statusItem.masterName,
+              value: statusItem.masterName, // Adjust value as needed
+            }))}
             placeholder={t('Status')}
             showSearch
-            value={raiseTicketData?.status}
-            onChange={e => {
-              setRaiseTicketData({
-                ...raiseTicketData,
-                status: e.target.value,
-              });
-            }}
+            value={
+              raiseTicketDataValue.status.length > 0
+                ? {
+                    label: raiseTicketDataValue.status[0].masterName,
+                    value: raiseTicketDataValue.status[0].masterName,
+                  }
+                : undefined
+            }
+         
+      onDropdownVisibleChange={(open) => {
+        if (open) {
+
+          const type='Status'
+          handleDropdownChange(type);
+        }
+      }}
+           onChange={(selectedOption) => {
+        if (
+          selectedOption &&
+          typeof selectedOption === 'object' &&
+          selectedOption !== null
+        ) {
+      
+          setRaiseTicketDataValue({
+            ...raiseTicketDataValue,
+            status: selectedOption ? [{ masterName: selectedOption.label }] : [],
+          });
+          // Perform other actions using selectedOption
+        }
+      }}
+      
             style={{ width: '100%' }}
           />
         }
@@ -115,15 +207,41 @@ export function RaiseTicketModalForm({
             allowClear
             data-test="ticket_nature_of_task"
             labelInValue
-            options={[]}
+            options={raiseTicketData.natureOfTask.map((statusItem:any) => ({
+              label: statusItem.masterName,
+              value: statusItem.masterName, // Adjust value as needed
+            }))}
             placeholder={t('Nature of Task')}
             showSearch
-            value={raiseTicketData?.natureOfTask}
-            onChange={e => {
-              setRaiseTicketData({
-                ...raiseTicketData,
-                natureOfTask: e.target.value,
-              });
+            value={
+              raiseTicketDataValue.status.length > 0
+                ? {
+                    key: raiseTicketDataValue.natureOfTask[0].masterName,
+                    label: raiseTicketDataValue.natureOfTask[0].masterName,
+                    value: raiseTicketDataValue.natureOfTask[0].masterName,
+                  }
+                : undefined
+            }
+            onDropdownVisibleChange={(open) => {
+              if (open) {
+                const type='Nature of Task'
+                handleDropdownChange(type);
+              }
+            }}
+                 onChange={(selectedOption) => {
+              
+              if (
+                selectedOption &&
+                typeof selectedOption === 'object' &&
+                selectedOption !== null
+              ) {
+              
+                setRaiseTicketDataValue({
+                  ...raiseTicketDataValue,
+                  natureOfTask: selectedOption ? [{ masterName: selectedOption.label }] : [],
+                });
+                // Perform other actions using selectedOption
+              }
             }}
             style={{ width: '100%' }}
           />
@@ -138,16 +256,40 @@ export function RaiseTicketModalForm({
             allowClear
             data-test="ticket_site"
             labelInValue
-            options={[]}
+            options={raiseTicketData.site.map((statusItem:any) => ({
+              label: statusItem.mainSite,
+              value: statusItem.mainSite, // Adjust value as needed
+            }))}
             placeholder={t('Site')}
             showSearch
-            value={raiseTicketData?.site}
-            onChange={e => {
-              setRaiseTicketData({
-                ...raiseTicketData,
-                site: e.target.value,
-              });
+            value={
+              raiseTicketDataValue.site.length > 0
+                ? {
+                    key: raiseTicketDataValue.site[0].mainSite,
+                    label: raiseTicketDataValue.site[0].mainSite,
+                    value: raiseTicketDataValue.site[0].mainSite,
+                  }
+                : undefined
+            }
+            onDropdownVisibleChange={(open) => {
+              if (open) {
+                handleSiteDropdownChange();
+              }
             }}
+            onChange={(selectedOption) => {
+          if (
+            selectedOption &&
+            typeof selectedOption === 'object' &&
+            selectedOption !== null
+          ) {
+          
+            setRaiseTicketDataValue({
+              ...raiseTicketDataValue,
+              site: selectedOption ? [{ mainSite: selectedOption.label }] : [],
+            });
+            // Perform other actions using selectedOption
+          }
+        }}
             style={{ width: '100%' }}
           />
         }
@@ -227,15 +369,42 @@ export function RaiseTicketModalForm({
             allowClear
             data-test="ticket_priority"
             labelInValue
-            options={[]}
+            options={raiseTicketData.priority.map((statusItem:any) => ({
+              label: statusItem.masterName,
+              value: statusItem.masterName, // Adjust value as needed
+            }))}
             placeholder="Ticket Priority"
             showSearch
-            value={raiseTicketData?.prioriy}
-            onChange={e => {
-              setRaiseTicketData({
-                ...raiseTicketData,
-                priority: e.target.value,
-              });
+            value={
+              raiseTicketDataValue.priority.length > 0
+                ? {
+                    key: raiseTicketDataValue.priority[0].masterName,
+                    label: raiseTicketDataValue.priority[0].masterName,
+                    value: raiseTicketDataValue.priority[0].masterName,
+                  }
+                : undefined
+            }
+            onDropdownVisibleChange={(open) => {
+              if (open) {
+                console.log('selectedOption',open);
+                const type='Priority'
+                handleDropdownChange(type);
+              }
+            }}
+                 onChange={(selectedOption) => {
+                  console.log('selectedOption', selectedOption);
+              if (
+                selectedOption &&
+                typeof selectedOption === 'object' &&
+                selectedOption !== null
+              ) {
+              
+                setRaiseTicketDataValue({
+                  ...raiseTicketDataValue,
+                  priority: selectedOption ? [{ masterName: selectedOption.label }] : [],
+                });
+                // Perform other actions using selectedOption
+              }
             }}
             style={{ width: '100%' }}
           />

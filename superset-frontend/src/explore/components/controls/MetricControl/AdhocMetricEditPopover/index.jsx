@@ -320,7 +320,12 @@ export default class AdhocMetricEditPopover extends React.PureComponent {
     // autofocus on column if there's no value in column; otherwise autofocus on aggregate
     const columnSelectProps = {
       ariaLabel: t('Select column'),
-      placeholder: t('%s column(s)', columns.length),
+      placeholder: t(
+        '%s column(ss)',
+        columns.some(column => column.hasOwnProperty('is_type'))
+          ? columns.filter(column => column.is_type === 'y_axis').length
+          : columns.length
+      ),
       value: columnValue,
       onChange: this.onColumnChange,
       allowClear: true,
@@ -443,12 +448,21 @@ export default class AdhocMetricEditPopover extends React.PureComponent {
           >
             <FormItem label={t('column')}>
               <Select
-                options={columns.map(column => ({
-                  value: column.column_name,
-                  label: column.verbose_name || column.column_name,
-                  key: column.id,
-                  customLabel: this.renderColumnOption(column),
-                }))}
+            options={columns
+              .filter(column => {
+                if (column.hasOwnProperty('is_type')) {
+                  return column.is_type === 'y_axis'; // Filter based on is_type if it exists
+                }
+                return true; // If is_type doesn't exist, include the data
+              })
+              .map(filteredColumn => ({
+                value: filteredColumn.column_name,
+                label: filteredColumn.verbose_name || filteredColumn.column_name,
+                key: filteredColumn.id,
+                customLabel: this.renderColumnOption(filteredColumn),
+              }))
+            }
+            
                 {...columnSelectProps}
               />
             </FormItem>

@@ -141,7 +141,23 @@ class GetExploreCommand(BaseCommand, ABC):
         }
         try:
             if datasource:
+                import re
                 datasource_data = datasource.data
+                pattern = r'\[([^\]]+)\]'
+                matches = re.findall(pattern, datasource_data.get('sql'))
+                if matches:
+                    table_name = matches[-1]
+                    data = self.get_xy_mapping(table_name)
+                    if data.get('status'):
+                        x_axis = data.get('data').get('xaxis')
+                        y_axis = data.get('data').get('yaxis')
+                        for column in datasource_data['columns']:
+                            if column.get('column_name') in x_axis:
+                                column['is_type'] = 'x_axis'
+                            elif column.get('column_name') in y_axis:
+                                column['is_type'] = 'y_axis'
+                            else:
+                                del column
         except SupersetException as ex:
             message = ex.message
         except SQLAlchemyError:
@@ -174,3 +190,21 @@ class GetExploreCommand(BaseCommand, ABC):
 
     def validate(self) -> None:
         pass
+
+    from flask import Response
+    def get_xy_mapping(self, table_name) -> Response:
+        from flask import jsonify
+        import requests
+        xymapping_api_url = f'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetColumnXYMapping?tableName={table_name}'
+
+        try:
+            response = requests.get(xymapping_api_url)
+            if response.status_code == 200:
+                data = response.json()
+                return data
+            error_message = f"Failed to fetch ticket data from another API. Status code: {response.status_code}"
+            return jsonify({"error_message": error_message, 'status': False})
+
+        except requests.RequestException as e:
+            error_message = f"Failed to connect to another API: {str(e)}"
+            return jsonify({"error_message": error_message, 'status': False})

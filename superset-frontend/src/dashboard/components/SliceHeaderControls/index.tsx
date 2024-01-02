@@ -323,37 +323,100 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
   const [openScopingModal, scopingModal] = useCrossFiltersScopingModal(
     props.slice.slice_id,
   );
-  const [raiseTicketData, setRaiseTicketData] = useState({
+
+  interface StatusItem {
+    masterName: string;
+    // Add other properties if present in your actual data structure
+  }
+  
+  interface RaiseTicketData {
+    title: string;
+    description: string;
+    assignTo: any[]; // Adjust type based on your actual data structure
+    reviewers: any[]; // Adjust type based on your actual data structure
+    priority: any[];
+    taskType: any[];
+    status:StatusItem[];
+    natureOfTask: any[]; // Adjust type based on your actual data structure
+    site: any[]; // Adjust type based on your actual data structure
+    location: any[]; // Adjust type based on your actual data structure
+  }
+
+  const [raiseTicketData, setRaiseTicketData] = useState<RaiseTicketData>({
     title: '',
     description: '',
     assignTo: [],
     reviewers: [],
-    priority: '',
-    taskType: '',
+    priority: [],
+    taskType: [],
     status: [],
     natureOfTask: [],
     site: [],
     location: [],
   });
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const handleSiteDropdownChange = async () => {
       console.log('******');
       try {
         const response = await fetch(
-          'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmployeeMaster?employeeCode=38083',
-        );
+          'http://localhost:8088/api/v1/chart/get_site',
+        );  
         const result = await response.json();
-        console.error('Result:', result);
+        setRaiseTicketData(prevData => ({
+          ...prevData,
+          site: result.data, // Updating 'status' field
+        }));
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching data1:', error);
       } finally {
         //
       }
     };
+ 
 
-    fetchData();
-  }, []);
+  const handleDropdownChange = async (type: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8088/api/v1/chart/get_category?category=${type}`
+      );
+      const result = await response.json();
+  
+      setRaiseTicketData(prevData => {
+        const updatedData: Partial<RaiseTicketData> = {};
+  
+        // Map 'masterCategory' to the corresponding field in RaiseTicketData
+        switch (result.data.masterCategory) {
+          case 'Priority':
+            updatedData.priority = result.data.commonMasterLists;
+            break;
+          case 'Task Type':
+            updatedData.taskType = result.data.commonMasterLists;
+            break;
+          case 'Status':
+            updatedData.status = result.data.commonMasterLists;
+            break;
+          case 'Nature of Task':
+            updatedData.natureOfTask = result.data.commonMasterLists;
+            break;
+          // Add more cases for other masterCategory values as needed
+          default:
+            break;
+        }
+  
+        return {
+          ...prevData,
+          ...updatedData,
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      // Handle error scenario
+    }
+  };
+
+ 
+
+   console.log('Result:', raiseTicketData);
 
   const canEditCrossFilters =
     useSelector<RootState, boolean>(
@@ -582,6 +645,8 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
           modalBody={
             <RaiseTicketModalForm
               setRaiseTicketData={setRaiseTicketData}
+              handleDropdownChange={handleDropdownChange}
+              handleSiteDropdownChange={handleSiteDropdownChange}
               raiseTicketData={raiseTicketData}
             />
           }

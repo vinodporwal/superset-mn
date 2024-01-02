@@ -34,7 +34,7 @@ services:
     container_name: superset_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8019:8019"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -44,7 +44,7 @@ services:
     container_name: superset_cache
     restart: unless-stopped
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6370:6370"
     volumes:
       - redis:/data
 
@@ -54,7 +54,7 @@ services:
     container_name: superset_db
     restart: unless-stopped
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5433"
     volumes:
       - db_home:/var/lib/postgresql/data
       - ./docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -78,7 +78,7 @@ services:
     build: ./superset-websocket
     image: superset-websocket
     ports:
-      - 8080:8080
+      - 8981:8981
     depends_on:
       - redis
     # Mount everything in superset-websocket into container and
@@ -98,7 +98,7 @@ services:
     environment:
       - PORT=8080
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_PORT=6370
       - REDIS_SSL=false
 
   superset-init:

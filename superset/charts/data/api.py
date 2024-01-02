@@ -50,7 +50,8 @@ from superset.models.sql_lab import Query
 from superset.utils.core import create_zip, get_user_id, json_int_dttm_ser
 from superset.views.base import CsvResponse, generate_download_headers, XlsxResponse
 from superset.views.base_api import statsd_metrics
-
+from flask import jsonify
+import requests
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
 
@@ -58,7 +59,82 @@ logger = logging.getLogger(__name__)
 
 
 class ChartDataRestApi(ChartRestApi):
-    include_route_methods = {"get_data", "data", "data_from_cache"}
+    include_route_methods = {"get_data", "data", "data_from_cache", "get_ticket_data",
+                             "get_site_data", "get_category_data"}
+
+    @expose("/get_employee_data", methods=("GET",))
+    def get_ticket_data(self) -> Response:
+        employee_code = request.args.get('employeeCode')
+        if not employee_code:
+            return self.response_400(message="Missing 'employeeCode' parameter")
+
+        another_api_url = f'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmployeeMaster?employeeCode={employee_code}'
+
+        try:
+            response = requests.get(another_api_url)
+
+            if response.status_code == 200:
+                ticket_data = response.json()
+                return ticket_data
+            elif response.status_code == 404:
+                return self.response_404(message="Ticket not found in the other API")
+            else:
+                return self.response_500(
+                    message="Failed to fetch ticket data from another API")
+
+        except requests.RequestException as e:
+            return self.response_500(
+                message=f"Failed to connect to another API: {str(e)}"
+            )
+
+    @expose("/get_site", methods=("GET",))
+    def get_site_data(self) -> Response:
+        another_api_url = f'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetMainSite'
+        try:
+            # Make a request to the other API to get ticket data
+            response = requests.get(another_api_url)
+
+            # Check the response status
+            if response.status_code == 200:
+                get_site = response.json()
+                return get_site
+            elif response.status_code == 404:
+                return self.response_404(message="Ticket not found in the other API")
+            else:
+                return self.response_500(
+                    message="Failed to fetch ticket data from another API")
+
+        except requests.RequestException as e:
+            return self.response_500(
+                message=f"Failed to connect to another API: {str(e)}")
+
+    @expose("/get_category", methods=("GET",))
+    def get_category_data(self) -> Response:
+        master_category = request.args.get(
+            'category')  # Get the dynamic parameter from the request
+
+        if not master_category:
+            return self.response_400(message="Missing 'masterCategory' parameter")
+
+        another_api_url = f'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetCommonMaster?masterCategory={master_category}'
+
+        try:
+            # Make a request to the other API to get ticket data
+            response = requests.get(another_api_url)
+
+            # Check the response status
+            if response.status_code == 200:
+                get_category = response.json()
+                return get_category
+            elif response.status_code == 404:
+                return self.response_404(message="Ticket not found in the other API")
+            else:
+                return self.response_500(
+                    message="Failed to fetch ticket data from another API")
+        except requests.RequestException as e:
+            return self.response_500(
+                message=f"Failed to connect to another API: {str(e)}")
+
 
     @expose("/<int:pk>/data/", methods=("GET",))
     @protect()

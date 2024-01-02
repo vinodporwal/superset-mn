@@ -87,7 +87,9 @@ from superset.utils.core import (
     remove_duplicates,
 )
 from superset.utils.dates import datetime_to_epoch
-
+import re
+from sqlalchemy.sql import text, select
+import requests
 if TYPE_CHECKING:
     from superset.connectors.sqla.models import SqlMetric, TableColumn
     from superset.db_engine_specs import BaseEngineSpec
@@ -1416,6 +1418,23 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         col = self.make_sqla_column_compatible(col, label)
         return col
 
+    def get_volume_conditions(self, table_name, columns):
+        columns_string = ','.join(columns)
+        api_endpoint = f'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetDataFilterConditions?tableName={table_name}&filterColumns={columns_string}'
+        try:
+            response = requests.get(api_endpoint)
+
+            if response.status_code == 200:
+                data = response.json()
+                return data
+            else:
+                print(f"Failed to fetch volume conditions. Status code: {response.status_code}")
+                return None
+
+        except requests.RequestException as e:
+            print(f"Request Exception: {e}")
+            return []
+
     def get_sqla_query(  # pylint: disable=too-many-arguments,too-many-locals,too-many-branches,too-many-statements
         self,
         apply_fetch_values_predicate: bool = False,
@@ -2095,6 +2114,16 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
             and (col in self.column_names or col in applied_template_filters)
         ] + applied_adhoc_filters_columns
 
+        pattern = r'FROM\s+dbo\.\[(.*?)]'
+        # Find the table name using regex
+        matches = re.search(pattern, str(tbl), re.IGNORECASE)
+        if matches:
+            table_cond = matches.group(1)  # Extract the table name
+            data = self.get_volume_conditions(table_cond, qry.columns.keys())
+            if data:
+                qry = modify_query(qry, data)
+                if row_limit:
+                    qry = qry.limit(row_limit)
         return SqlaQuery(
             applied_template_filters=applied_template_filters,
             cte=cte,
@@ -2105,3 +2134,65 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
             sqla_query=qry,
             prequeries=prequeries,
         )
+
+
+def get_user_data(username):
+    url = f"http://fleetmanager.mindnerves.com/api/User/GetSiteByUser?userName={username}"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            user_data = response.json()
+            return user_data
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            return None
+    except requests.RequestException as e:
+        print(f"Request exception: {e}")
+        return None
+
+def modify_query(original_qry, data):
+    new_columns = [col['column_name'] for col in data['data']['columns']]
+    coldata = data['data']['filter']
+    filter_columns = ['CASE ' + item['columnQuery'] for item in coldata]
+    condition_str = ','.join(filter_columns)
+
+    transformations = condition_str.split(',')
+    formatted_group_by = ', '.join([transform.split(' AS ')[0] for transform in transformations])
+    # existing_columns = original_qry.columns.keys()
+    original_query = str(original_qry)
+    yes_have = True
+    for column in new_columns:
+        pattern = rf'"{column}"\s+AS\s+"[^"]+"'
+        original_query = re.sub(pattern, '', original_query, flags=re.IGNORECASE)
+
+    if yes_have:
+        original_query = original_query.replace(', ,', ',').replace(' ,', '').replace(
+            ', GROUP', ' GROUP')
+        select_index = original_query.split("SELECT", 1)
+
+        updated_query = f"{condition_str}, {select_index[-1]}"
+
+        limit_index = updated_query.upper().rfind('LIMIT')
+        if limit_index != -1:
+            updated_query = updated_query[:limit_index].rstrip()
+
+        # print(g.user.username)
+        # user_data = get_user_data(g.user.username)
+        ## Userbase site
+        # site_names = [site['siteName'] for site in user_data['data']['userSiteResponses']]
+        # if site_names:
+        #     condition_to_add = f"site_code IN ({', '.join(map(str, site_names))})"
+        #     query_parts = updated_query.split("GROUP BY")
+        #     if len(query_parts) > 1:
+        #         updated_query = f"{query_parts[0]} WHERE {condition_to_add} GROUP BY {query_parts[1]}"
+        #     else:
+        #         updated_query = f"{query_parts[0]} WHERE {condition_to_add}"
+
+        query_split = updated_query.split("ORDER BY")
+        # comma_separated = ', '.join(f'"{item}"' for item in new_columns)
+
+        updated_query = f"{query_split[0]}, {formatted_group_by} ORDER BY {query_split[1]}"
+        original_qry = select([text(updated_query)])
+        return original_qry
+    else:
+        return original_qry
