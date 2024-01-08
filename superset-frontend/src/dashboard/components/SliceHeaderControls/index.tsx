@@ -284,9 +284,21 @@ const ViewRaiseTicketModalTrigger = ({
   const theme = useTheme();
 
   useEffect(() => {
-    if(close) {
+    if (close) {
       setShowModal(false);
       setClose(false);
+      setRaiseTicketDataValue({
+        title: '',
+        description: '',
+        assignTo: [],
+        reviewers: [],
+        priority: [],
+        taskType: [],
+        status: [],
+        natureOfTask: [],
+        site: [],
+        location: [],
+      })
     }
   }, [close]);
 
@@ -805,8 +817,8 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
               setRaiseTicketDataValue={setRaiseTicketDataValue}
               raiseTicketDataValue={raiseTicketDataValue}
               fetchStatus={fetchStatus}
-              />
-            }
+            />
+          }
           handleRaiseTicket={handleRaiseTicket}
           isValidate={isValidate}
           setRaiseTicketDataValue={setRaiseTicketDataValue}
