@@ -63,6 +63,8 @@ import { DrillDetailMenuItems } from 'src/components/Chart/DrillDetail';
 import { LOG_ACTIONS_CHART_DOWNLOAD_AS_IMAGE } from 'src/logger/LogUtils';
 import { RootState } from 'src/dashboard/types';
 import { useCrossFiltersScopingModal } from '../nativeFilters/FilterBar/CrossFilters/ScopingModal/useCrossFiltersScopingModal';
+import { notification } from 'antd';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
 
 const MENU_KEYS = {
   DOWNLOAD_AS_IMAGE: 'download_as_image',
@@ -260,6 +262,8 @@ const ViewRaiseTicketModalTrigger = ({
   isValidate,
   setRaiseTicketDataValue,
   isLoading,
+  close,
+  setClose,
 }: {
   exploreUrl: string;
   triggerNode: ReactChild;
@@ -268,7 +272,9 @@ const ViewRaiseTicketModalTrigger = ({
   isValidate: Boolean;
   handleRaiseTicket: (event: React.MouseEvent<HTMLButtonElement>) => void;
   isLoading: boolean;
-  setRaiseTicketDataValue: any
+  setRaiseTicketDataValue: any;
+  close: boolean;
+  setClose: any;
 }) => {
   const [showModal, setShowModal] = useState(false);
   const openModal = useCallback(() => setShowModal(true), []);
@@ -276,6 +282,13 @@ const ViewRaiseTicketModalTrigger = ({
   const history = useHistory();
   const exploreChart = () => history.push(exploreUrl);
   const theme = useTheme();
+
+  useEffect(() => {
+    if(close) {
+      setShowModal(false);
+      setClose(false);
+    }
+  }, [close]);
 
   return (
     <>
@@ -379,7 +392,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
     reviewers: any[]; // Adjust type based on your actual data structure
     priority: any[];
     taskType: any[];
-    status: StatusItem[];
+    status: StatusItem[] | any;
     natureOfTask: any[]; // Adjust type based on your actual data structure
     site: any[]; // Adjust type based on your actual data structure
     location: any[]; // Adjust type based on your actual data structure
@@ -415,6 +428,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
     });
   const [isValidate, setIsValidate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [close, setClose] = useState(false);
 
   const handleRaiseTicket = async () => {
     if (Object.values(raiseTicketDataValue).some(field => (Array.isArray(field) ? field.length === 0 : field.trim() === ''))) {
@@ -442,8 +456,6 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
       reviewer: raiseTicketDataValue?.reviewers?.map(item => item?.empCode), // Number arr
     };
 
-    console.log('******$$$$$$******', payload, '******', raiseTicketDataValue);
-
     try {
       const response = await fetch(
         '/api/v1/chart/add_ticket',
@@ -457,7 +469,12 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
       );
 
       const responseData = await response.json();
-      setIsLoading(false);
+
+      if (responseData?.response?.code === 200) {
+        setIsLoading(false);
+        addSuccessToast(responseData?.response?.message);
+        setClose(true);
+      }
     } catch (error) {
       setIsLoading(false);
       console.error('Error making POST request:', error.message);
@@ -483,6 +500,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
 
   const handleDropdownChange = async (type: string) => {
     try {
+      let statusData: { data: { commonMasterLists: any; }; } | null = null;
       const response = await fetch(
         `/api/v1/chart/get_category?category=${type}`,
       );
@@ -500,7 +518,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
             updatedData.taskType = result.data.commonMasterLists;
             break;
           case 'Status':
-            updatedData.status = result.data.commonMasterLists;
+            updatedData.status = statusData.data.commonMasterLists;
             break;
           case 'Nature of Task':
             updatedData.natureOfTask = result.data.commonMasterLists;
@@ -529,6 +547,23 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
       const result = await response.json();
 
       return result?.data;
+
+    } catch (error) {
+      console.error('Error in fetching data: ', error);
+    }
+  };
+
+  const fetchStatus = async () => {
+    try {
+      const response = await fetch(
+        `/api/v1/chart/get_status`,
+      );
+      const result = await response.json();
+
+      setRaiseTicketData(prevData => ({
+        ...prevData,
+        status: result?.data, // Updating 'status' field
+      }));
 
     } catch (error) {
       console.error('Error in fetching data: ', error);
@@ -769,12 +804,15 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
               raiseTicketData={raiseTicketData}
               setRaiseTicketDataValue={setRaiseTicketDataValue}
               raiseTicketDataValue={raiseTicketDataValue}
-            />
-          }
+              fetchStatus={fetchStatus}
+              />
+            }
           handleRaiseTicket={handleRaiseTicket}
           isValidate={isValidate}
           setRaiseTicketDataValue={setRaiseTicketDataValue}
           isLoading={isLoading}
+          close={close}
+          setClose={setClose}
         />
       </Menu.Item>
 

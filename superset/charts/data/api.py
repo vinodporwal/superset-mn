@@ -54,13 +54,13 @@ from flask import jsonify
 import requests
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
-from superset.config import add_ticket_url, get_employee1, get_site_url, get_category1
+from superset.config import add_ticket_url, get_employee1, get_site_url, get_category1, get_status1
 logger = logging.getLogger(__name__)
 
 
 class ChartDataRestApi(ChartRestApi):
     include_route_methods = {"get_data", "data", "data_from_cache", "get_ticket_data",
-                             "get_site_data", "get_category_data", "add_ticket_api"}
+                             "get_site_data", "get_category_data", "add_ticket_api", "get_status_data"}
 
     @expose('/add_ticket', methods=['POST'])
     def add_ticket_api(self):
@@ -79,6 +79,26 @@ class ChartDataRestApi(ChartRestApi):
                 return jsonify({'error': f'API call failed with status code: {response.status_code}'}), response.status_code
         except Exception as e:
             return jsonify({'error': f'Something went wrong: {str(e)}'}), 500
+
+    @expose("/get_status", methods=["GET"])
+    def get_status_data(self) -> Response:
+        try:
+            # Make a request to the other API to get ticket data
+            response = requests.get(get_status1)
+
+            # Check the response status
+            if response.status_code == 200:
+                get_status = response.json()
+                return get_status
+            elif response.status_code == 404:
+                return self.response_404(message="Ticket not found in the other API")
+            else:
+                return self.response_500(
+                    message="Failed to fetch ticket data from another API")
+
+        except requests.RequestException as e:
+            return self.response_500(
+                message=f"Failed to connect to another API: {str(e)}")
 
     @expose("/get_employee_data", methods=("GET",))
     def get_ticket_data(self) -> Response:

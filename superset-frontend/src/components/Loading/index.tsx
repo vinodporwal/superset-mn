@@ -20,7 +20,9 @@
 import React from 'react';
 import { styled } from '@superset-ui/core';
 import cls from 'classnames';
-import Loader from 'src/assets/images/loading.gif';
+// import Loader from 'src/assets/images/loading.gif';
+import suzlon from 'src/assets/images/suzlon-logo.png';
+import { Spin } from 'antd';
 
 export type PositionOption =
   | 'floating'
@@ -56,21 +58,36 @@ const LoaderImg = styled.img`
     top: 50%;
     transform: translate(-50%, -50%);
   }
+  &.load {
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 `;
+
 export default function Loading({
   position = 'floating',
-  image,
+  // image,
   className,
 }: Props) {
   return (
-    <LoaderImg
-      className={cls('loading', position, className)}
-      alt="Loading..."
-      src={image || Loader}
-      role="status"
-      aria-live="polite"
-      aria-label="Loading"
-      data-test="loading-indicator"
-    />
+    <div>
+      <LoaderImg
+        className={cls('loading', position, className)}
+        alt="Loading..."
+        // src={image || Loader}
+        src={suzlon}
+        role="status"
+        aria-live="polite"
+        aria-label="Loading"
+        data-test="loading-indicator"
+      />
+      <div>
+        <Spin size='default' style={{ position: 'absolute', left: '50%', top: '55%', transform: 'translate(-50%, -50%)' }} />
+      </div>
+    </div>
   );
 }

@@ -286,7 +286,7 @@ AUTH_RATE_LIMIT = "5 per second"
 APP_NAME = "Superset"
 
 # Specify the App icon
-APP_ICON = "/static/assets/images/superset-logo-horiz.png"
+APP_ICON = "/static/assets/images/suzlon-logo.png"
 
 # Specify where clicking the logo would take the user
 # e.g. setting it to '/' would take the user to '/superset/welcome/'
@@ -1703,3 +1703,4 @@ add_ticket_url = 'http://fleetmanager.mindnerves.com/api/Task/AddOrUpdateTaks'
 get_employee1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmployeeMaster?employeeCode='
 get_site_url = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetMainSite'
 get_category1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetCommonMaster?masterCategory='
+get_status1 = 'http://fleetmanager.mindnerves.com/api/Task/GetAllTaskMng'

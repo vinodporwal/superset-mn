@@ -29,7 +29,8 @@ export function RaiseTicketModalForm({
   handleFetchReviewersAndAssignTo,
   setRaiseTicketData,
   raiseTicketData,
-  raiseTicketDataValue, setRaiseTicketDataValue
+  raiseTicketDataValue, setRaiseTicketDataValue,
+  fetchStatus,
 }: any) {
 
   const [searchAssignTo, setSearchAssignTo] = useState('');
@@ -175,7 +176,7 @@ export function RaiseTicketModalForm({
             labelInValue
             options={raiseTicketData.status.map((statusItem: any) => ({
               key: statusItem?.id,
-              label: statusItem?.masterName,
+              label: statusItem?.status,
               value: statusItem?.id, // Adjust value as needed
             }))}
             placeholder={t('Status')}
@@ -191,8 +192,7 @@ export function RaiseTicketModalForm({
             }
             onDropdownVisibleChange={open => {
               if (open) {
-                const type = 'Status';
-                handleDropdownChange(type);
+                fetchStatus();
               }
             }}
             onChange={selectedOption => {
@@ -293,7 +293,6 @@ export function RaiseTicketModalForm({
               }
             }}
             onChange={selectedOption => {
-              console.log('!!!!!!$$$$$$', raiseTicketData.site);
               if (
                 selectedOption &&
                 typeof selectedOption === 'object' &&
