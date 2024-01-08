@@ -1697,3 +1697,9 @@ elif importlib.util.find_spec("superset_config") and not is_test():
     except Exception:
         logger.exception("Found but failed to import local superset_config")
         raise
+
+# fleetmanager Api
+add_ticket_url = 'http://fleetmanager.mindnerves.com/api/Task/AddOrUpdateTaks'
+get_employee1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmployeeMaster?employeeCode='
+get_site_url = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetMainSite'
+get_category1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetCommonMaster?masterCategory='

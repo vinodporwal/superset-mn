@@ -23,6 +23,7 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
 } from 'react';
 import {
   Link,
@@ -255,11 +256,19 @@ const ViewRaiseTicketModalTrigger = ({
   triggerNode,
   modalTitle,
   modalBody,
+  handleRaiseTicket,
+  isValidate,
+  setRaiseTicketDataValue,
+  isLoading,
 }: {
   exploreUrl: string;
   triggerNode: ReactChild;
   modalTitle: ReactChild;
   modalBody: ReactChild;
+  isValidate: Boolean;
+  handleRaiseTicket: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  isLoading: boolean;
+  setRaiseTicketDataValue: any
 }) => {
   const [showModal, setShowModal] = useState(false);
   const openModal = useCallback(() => setShowModal(true), []);
@@ -290,14 +299,47 @@ const ViewRaiseTicketModalTrigger = ({
           onHide={closeModal}
           title={modalTitle}
           footer={
-            <>
-              <Button buttonStyle="secondary" buttonSize="small">
-                {t('Submit')}
-              </Button>
-              <Button buttonStyle="primary" buttonSize="small">
-                {t('Close')}
-              </Button>
-            </>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <h1 style={{ fontSize: '1rem', color: '#FF0000' }}>
+                {isValidate && <>All the fields are mandatory.</>}
+              </h1>
+              <div style={{ float: 'right' }}>
+                <Button
+                  buttonStyle="secondary"
+                  buttonSize="small"
+                  onClick={handleRaiseTicket}
+                  loading={isLoading}
+                >
+                  {t('Submit')}
+                </Button>
+                <Button
+                  buttonStyle="primary"
+                  buttonSize="small"
+                  onClick={() => {
+                    closeModal(); setRaiseTicketDataValue({
+                      title: '',
+                      description: '',
+                      assignTo: [],
+                      reviewers: [],
+                      priority: [],
+                      taskType: [],
+                      status: [],
+                      natureOfTask: [],
+                      site: [],
+                      location: [],
+                    })
+                  }}
+                >
+                  {t('Close')}
+                </Button>
+              </div>
+            </div>
           }
           responsive
           resizable
@@ -328,21 +370,23 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
     masterName: string;
     // Add other properties if present in your actual data structure
   }
-  
+
   interface RaiseTicketData {
+    label: string;
     title: string;
     description: string;
     assignTo: any[]; // Adjust type based on your actual data structure
     reviewers: any[]; // Adjust type based on your actual data structure
     priority: any[];
     taskType: any[];
-    status:StatusItem[];
+    status: StatusItem[];
     natureOfTask: any[]; // Adjust type based on your actual data structure
     site: any[]; // Adjust type based on your actual data structure
     location: any[]; // Adjust type based on your actual data structure
   }
 
   const [raiseTicketData, setRaiseTicketData] = useState<RaiseTicketData>({
+    label: '',
     title: '',
     description: '',
     assignTo: [],
@@ -355,35 +399,98 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
     location: [],
   });
 
-  const handleSiteDropdownChange = async () => {
-      console.log('******');
-      try {
-        const response = await fetch(
-          'http://localhost:8088/api/v1/chart/get_site',
-        );  
-        const result = await response.json();
-        setRaiseTicketData(prevData => ({
-          ...prevData,
-          site: result.data, // Updating 'status' field
-        }));
-      } catch (error) {
-        console.error('Error fetching data1:', error);
-      } finally {
-        //
-      }
+  const [raiseTicketDataValue, setRaiseTicketDataValue] =
+    useState<RaiseTicketData>({
+      label: '',
+      title: '',
+      description: '',
+      assignTo: [],
+      reviewers: [],
+      priority: [],
+      taskType: [],
+      status: [],
+      natureOfTask: [],
+      site: [],
+      location: [],
+    });
+  const [isValidate, setIsValidate] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleRaiseTicket = async () => {
+    if (Object.values(raiseTicketDataValue).some(field => (Array.isArray(field) ? field.length === 0 : field.trim() === ''))) {
+      setIsValidate(true);
+      return;
+    }
+
+    setIsValidate(false);
+    setIsLoading(true);
+
+    const payload = {
+      taskTypeId: raiseTicketDataValue?.taskType?.[0]?.id,
+      statusId: raiseTicketDataValue?.status?.[0]?.id,
+      title: raiseTicketDataValue?.title,
+      description: raiseTicketDataValue?.description,
+      natureOfTaskId: raiseTicketDataValue?.natureOfTask?.[0]?.id,
+      sprintId: 1105,
+      siteCode: raiseTicketDataValue?.site?.[0]?.siteCode,
+      siteName: raiseTicketDataValue?.site?.[0]?.mainSite,
+      label: raiseTicketDataValue?.label,
+      location: raiseTicketDataValue?.location,
+      dueDate: moment().format("YYYY-MM-DDTHH:mm:ss"), // '2023-12-28T00:00:00',
+      priorityId: raiseTicketDataValue?.priority?.[0]?.id,
+      assignedToUser: raiseTicketDataValue?.assignTo?.map(item => item?.empCode), // Number arr
+      reviewer: raiseTicketDataValue?.reviewers?.map(item => item?.empCode), // Number arr
     };
- 
+
+    console.log('******$$$$$$******', payload, '******', raiseTicketDataValue);
+
+    try {
+      const response = await fetch(
+        '/api/v1/chart/add_ticket',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+
+      const responseData = await response.json();
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error making POST request:', error.message);
+    }
+  };
+
+  const handleSiteDropdownChange = async () => {
+    try {
+      const response = await fetch(
+        '/api/v1/chart/get_site',
+      );
+      const result = await response.json();
+      setRaiseTicketData(prevData => ({
+        ...prevData,
+        site: result.data, // Updating 'status' field
+      }));
+    } catch (error) {
+      console.error('Error fetching data1:', error);
+    } finally {
+      //
+    }
+  };
 
   const handleDropdownChange = async (type: string) => {
     try {
       const response = await fetch(
-        `http://localhost:8088/api/v1/chart/get_category?category=${type}`
+        `/api/v1/chart/get_category?category=${type}`,
       );
       const result = await response.json();
-  
+
       setRaiseTicketData(prevData => {
         const updatedData: Partial<RaiseTicketData> = {};
-  
+
         // Map 'masterCategory' to the corresponding field in RaiseTicketData
         switch (result.data.masterCategory) {
           case 'Priority':
@@ -402,7 +509,7 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
           default:
             break;
         }
-  
+
         return {
           ...prevData,
           ...updatedData,
@@ -414,9 +521,19 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
     }
   };
 
- 
+  const handleFetchReviewersAndAssignTo = async (empCode: string) => {
+    try {
+      const response = await fetch(
+        `/api/v1/chart/get_employee_data?employeeCode=${empCode}`,
+      );
+      const result = await response.json();
 
-   console.log('Result:', raiseTicketData);
+      return result?.data;
+
+    } catch (error) {
+      console.error('Error in fetching data: ', error);
+    }
+  };
 
   const canEditCrossFilters =
     useSelector<RootState, boolean>(
@@ -508,11 +625,12 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
     isFullSize,
     cachedDttm = [],
     updatedDttm = null,
-    addSuccessToast = () => {},
-    addDangerToast = () => {},
+    addSuccessToast = () => { },
+    addDangerToast = () => { },
     supersetCanShare = false,
     isCached = [],
   } = props;
+  const childRef = useRef(null);
   const isTable = slice.viz_type === 'table';
   const cachedWhen = (cachedDttm || []).map(itemCachedDttm =>
     moment.utc(itemCachedDttm).fromNow(),
@@ -647,9 +765,16 @@ const SliceHeaderControls = (props: SliceHeaderControlsPropsWithRouter) => {
               setRaiseTicketData={setRaiseTicketData}
               handleDropdownChange={handleDropdownChange}
               handleSiteDropdownChange={handleSiteDropdownChange}
+              handleFetchReviewersAndAssignTo={handleFetchReviewersAndAssignTo}
               raiseTicketData={raiseTicketData}
+              setRaiseTicketDataValue={setRaiseTicketDataValue}
+              raiseTicketDataValue={raiseTicketDataValue}
             />
           }
+          handleRaiseTicket={handleRaiseTicket}
+          isValidate={isValidate}
+          setRaiseTicketDataValue={setRaiseTicketDataValue}
+          isLoading={isLoading}
         />
       </Menu.Item>
 

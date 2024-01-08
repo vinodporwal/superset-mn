@@ -54,13 +54,31 @@ from flask import jsonify
 import requests
 if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
-
+from superset.config import add_ticket_url, get_employee1, get_site_url, get_category1
 logger = logging.getLogger(__name__)
 
 
 class ChartDataRestApi(ChartRestApi):
     include_route_methods = {"get_data", "data", "data_from_cache", "get_ticket_data",
-                             "get_site_data", "get_category_data"}
+                             "get_site_data", "get_category_data", "add_ticket_api"}
+
+    @expose('/add_ticket', methods=['POST'])
+    def add_ticket_api(self):
+        try:
+            data = request.get_json()
+            headers = {
+                'accept': '*/*',
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.post(add_ticket_url, headers=headers, json=data)
+
+            if response.status_code == 200:
+                return jsonify({'message': 'API call successful', 'response': response.json()}), 200
+            else:
+                return jsonify({'error': f'API call failed with status code: {response.status_code}'}), response.status_code
+        except Exception as e:
+            return jsonify({'error': f'Something went wrong: {str(e)}'}), 500
 
     @expose("/get_employee_data", methods=("GET",))
     def get_ticket_data(self) -> Response:
@@ -68,10 +86,9 @@ class ChartDataRestApi(ChartRestApi):
         if not employee_code:
             return self.response_400(message="Missing 'employeeCode' parameter")
 
-        another_api_url = f'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmployeeMaster?employeeCode={employee_code}'
-
+        get_employee_url = f'{get_employee1}{employee_code}'
         try:
-            response = requests.get(another_api_url)
+            response = requests.get(get_employee_url)
 
             if response.status_code == 200:
                 ticket_data = response.json()
@@ -89,10 +106,9 @@ class ChartDataRestApi(ChartRestApi):
 
     @expose("/get_site", methods=("GET",))
     def get_site_data(self) -> Response:
-        another_api_url = f'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetMainSite'
         try:
             # Make a request to the other API to get ticket data
-            response = requests.get(another_api_url)
+            response = requests.get(get_site_url)
 
             # Check the response status
             if response.status_code == 200:
@@ -110,17 +126,13 @@ class ChartDataRestApi(ChartRestApi):
 
     @expose("/get_category", methods=("GET",))
     def get_category_data(self) -> Response:
-        master_category = request.args.get(
-            'category')  # Get the dynamic parameter from the request
-
+        master_category = request.args.get('category')
         if not master_category:
             return self.response_400(message="Missing 'masterCategory' parameter")
-
-        another_api_url = f'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetCommonMaster?masterCategory={master_category}'
-
+        get_category_url = f'{get_category1}{master_category}'
         try:
             # Make a request to the other API to get ticket data
-            response = requests.get(another_api_url)
+            response = requests.get(get_category_url)
 
             # Check the response status
             if response.status_code == 200:
