@@ -1704,3 +1704,94 @@ get_employee1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmploye
 get_site_url = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetMainSite'
 get_category1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetCommonMaster?masterCategory='
 get_status1 = 'http://fleetmanager.mindnerves.com/api/Task/GetAllTaskMng'
+
+
+from flask_login import login_user
+from superset import db, security_manager
+from flask_appbuilder.security.manager import AUTH_DB
+from flask import redirect, g, flash, request
+from flask_appbuilder.security.views import UserDBModelView,AuthDBView
+from superset.security import SupersetSecurityManager
+from flask_appbuilder.security.views import expose
+from flask_appbuilder.security.manager import BaseSecurityManager
+from flask_login import login_user, logout_user
+
+import base64
+
+
+def decode_jwt_payload(jwt_token):
+    # Split the token into its parts: header, payload, signature (if present)
+    token_parts = jwt_token.split('.')
+
+    if len(token_parts) == 3:
+        try:
+            # Decode and return the payload
+            decoded_payload = base64.urlsafe_b64decode(
+                token_parts[1] + '=' * (4 - len(token_parts[1]) % 4)).decode('utf-8')
+            return decoded_payload
+        except Exception as e:
+            return f"Error decoding payload: {e}"
+    else:
+        return "Invalid JWT token format. It should have three parts separated by dots."
+
+
+class CustomAuthDBView(AuthDBView):
+    login_template = 'appbuilder/general/security/login_db.html'
+
+    @expose('/login/', methods=['GET', 'POST'])
+    def login(self):
+        print("Login try")
+        if request.args.get('redirect') is not None:
+            redirect_url = request.args.get('redirect')
+        else:
+            redirect_url = "/dashboard/list/"
+
+        if request.args.get('token') is not None:
+            jwt_token = request.args.get('token')
+            token_data = decode_jwt_payload(jwt_token)
+            decoded_payload = json.loads(token_data)
+
+            full_name = decoded_payload.get("nameid", "")
+            first_name, last_name = full_name.split(maxsplit=1) if " " in full_name else (full_name, full_name)
+            username = decoded_payload.get('unique_name')
+            email = decoded_payload.get('email')
+
+            user = self.appbuilder.sm.find_user(username=username)
+            if not user:
+                user = self.create_user(username,first_name, last_name, email)
+
+            login_user(user, remember=False)
+            return redirect(redirect_url)
+        elif g.user is not None and g.user.is_authenticated:
+            return redirect(redirect_url)
+        else:
+            return super(CustomAuthDBView, self).login()
+
+    def create_user(self, username,first_name, last_name, email):
+        try:
+            # Check if the user exists, if not, create it
+            user = self.appbuilder.sm.find_user(username=username)
+            if not user:
+                # Create a user
+                security_manager.add_user(
+                    username,
+                    first_name,
+                    last_name,
+                    email,
+                    security_manager.find_role("Alpha"),
+                    '#Qwer123'
+                )
+                if user is None:
+                    user = self.appbuilder.sm.find_user(username=username)
+            return user
+        except Exception as e:
+            print(f"Failed to create user: {username}. Error: {e}")
+            return None
+
+
+class CustomSecurityManager(SupersetSecurityManager):
+    authdbview = CustomAuthDBView
+    def __init__(self, appbuilder):
+        super(CustomSecurityManager, self).__init__(appbuilder)
+
+CUSTOM_SECURITY_MANAGER = CustomSecurityManager

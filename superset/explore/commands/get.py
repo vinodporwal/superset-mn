@@ -144,9 +144,12 @@ class GetExploreCommand(BaseCommand, ABC):
                 import re
                 datasource_data = datasource.data
                 pattern = r'\[([^\]]+)\]'
-                matches = re.findall(pattern, datasource_data.get('sql'))
-                if matches:
+                if datasource_data.get('sql'):
+                    matches = re.findall(pattern, datasource_data.get('sql'))
                     table_name = matches[-1]
+                else:
+                    table_name =  datasource_data.get('table_name')
+                if table_name:
                     data = self.get_xy_mapping(table_name)
                     if data.get('status'):
                         x_axis = data.get('data').get('xaxis')
@@ -159,6 +162,7 @@ class GetExploreCommand(BaseCommand, ABC):
                             else:
                                 del column
         except SupersetException as ex:
+            print("##333",str(ex))
             message = ex.message
         except SQLAlchemyError:
             message = "SQLAlchemy error"

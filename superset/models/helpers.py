@@ -2114,14 +2114,19 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
             and (col in self.column_names or col in applied_template_filters)
         ] + applied_adhoc_filters_columns
 
-        pattern = r'FROM\s+dbo\.\[(.*?)]'
+        # pattern = r'FROM\s+dbo\.\[(.*?)]'
         # Find the table name using regex
-        matches = re.search(pattern, str(tbl), re.IGNORECASE)
-        if matches:
-            table_cond = matches.group(1)  # Extract the table name
+        # matches = re.search(pattern, str(qry), re.IGNORECASE)
+
+        table_str = str(tbl).replace('[', '').replace(']', '')
+        table_cond = table_str.split('.')[-1]
+
+
+        if table_cond:
+            # table_cond = matches.group(1)  # Extract the table name
             data = self.get_volume_conditions(table_cond, qry.columns.keys())
-            if data:
-                qry = modify_query(qry, data)
+            if data.get("data"):
+                qry = modify_query(qry, data.get("data"))
                 if row_limit:
                     qry = qry.limit(row_limit)
         return SqlaQuery(
@@ -2151,8 +2156,8 @@ def get_user_data(username):
         return None
 
 def modify_query(original_qry, data):
-    new_columns = [col['column_name'] for col in data['data']['columns']]
-    coldata = data['data']['filter']
+    new_columns = [col['column_name'] for col in data['columns']]
+    coldata = data['filter']
     filter_columns = ['CASE ' + item['columnQuery'] for item in coldata]
     condition_str = ','.join(filter_columns)
 
@@ -2166,12 +2171,10 @@ def modify_query(original_qry, data):
         original_query = re.sub(pattern, '', original_query, flags=re.IGNORECASE)
 
     if yes_have:
-        original_query = original_query.replace(', ,', ',').replace(' ,', '').replace(
-            ', GROUP', ' GROUP')
+        original_query = original_query.replace(', ,', ',').replace(' ,', '').replace(', GROUP', ' GROUP')
         select_index = original_query.split("SELECT", 1)
 
         updated_query = f"{condition_str}, {select_index[-1]}"
-
         limit_index = updated_query.upper().rfind('LIMIT')
         if limit_index != -1:
             updated_query = updated_query[:limit_index].rstrip()
@@ -2187,11 +2190,10 @@ def modify_query(original_qry, data):
         #         updated_query = f"{query_parts[0]} WHERE {condition_to_add} GROUP BY {query_parts[1]}"
         #     else:
         #         updated_query = f"{query_parts[0]} WHERE {condition_to_add}"
-
-        query_split = updated_query.split("ORDER BY")
-        # comma_separated = ', '.join(f'"{item}"' for item in new_columns)
-
-        updated_query = f"{query_split[0]}, {formatted_group_by} ORDER BY {query_split[1]}"
+        if "ORDER BY" in updated_query:
+            query_split = updated_query.split("ORDER BY")
+            # comma_separated = ', '.join(f'"{item}"' for item in new_columns)
+            updated_query = f"{query_split[0]}, {formatted_group_by} ORDER BY {query_split[1]}"
         original_qry = select([text(updated_query)])
         return original_qry
     else:
