@@ -2152,8 +2152,9 @@ def get_user_data(username):
     except requests.RequestException as e:
         print(f"Request exception: {e}")
         return None
-
+        
 def modify_query(qry, data):
+    print("original_qry==",qry)
     for column_info in data["columns"]:
         column_name = column_info["column_name"]
         column_query = column_info["columnQuery"]
@@ -2186,6 +2187,7 @@ def modify_query(qry, data):
         #     # comma_separated = ', '.join(f'"{item}"' for item in new_columns)
         #     updated_query = f"{query_split[0]}, {formatted_group_by} ORDER BY {query_split[1]}"
         original_qry = select([text(updated_query[-1])])
+        print("qry==",str(original_qry))
         return original_qry
     else:
         return qry
