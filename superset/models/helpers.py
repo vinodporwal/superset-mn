@@ -2121,12 +2121,11 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         table_str = str(tbl).replace('[', '').replace(']', '')
         table_cond = table_str.split('.')[-1]
 
-
         if table_cond:
             # table_cond = matches.group(1)  # Extract the table name
-            data = self.get_volume_conditions(table_cond, qry.columns.keys())
+            data = self.get_volume_conditions(table_cond)
             if data.get("data"):
-                qry = modify_query(qry, data.get("data"))
+                qry = modify_query(str(qry), data.get("data"))
                 if row_limit:
                     qry = qry.limit(row_limit)
         return SqlaQuery(
@@ -2155,30 +2154,23 @@ def get_user_data(username):
         print(f"Request exception: {e}")
         return None
 
-def modify_query(original_qry, data):
-    new_columns = [col['column_name'] for col in data['columns']]
-    coldata = data['filter']
-    filter_columns = ['CASE ' + item['columnQuery'] for item in coldata]
-    condition_str = ','.join(filter_columns)
+def modify_query(qry, data):
+    for column_info in data["columns"]:
+        column_name = column_info["column_name"]
+        column_query = column_info["columnQuery"]
+        group_by_column_query = column_query.replace(f' AS {column_name}', '')
 
-    transformations = condition_str.split(',')
-    formatted_group_by = ', '.join([transform.split(' AS ')[0] for transform in transformations])
-    # existing_columns = original_qry.columns.keys()
-    original_query = str(original_qry)
-    yes_have = True
-    for column in new_columns:
-        pattern = rf'"{column}"\s+AS\s+"[^"]+"'
-        original_query = re.sub(pattern, '', original_query, flags=re.IGNORECASE)
+        # Replace in GROUP BY clause
+        qry = qry.replace(f'"{column_name}"', column_query, 1)
 
-    if yes_have:
-        original_query = original_query.replace(', ,', ',').replace(' ,', '').replace(', GROUP', ' GROUP')
-        select_index = original_query.split("SELECT", 1)
+        # Replace in SELECT clause
+        qry = qry.replace(f' AS "{column_name}"', '')  # Remove AS part
+        updated_query = qry.replace(f'"{column_name}"', group_by_column_query)
 
-        updated_query = f"{condition_str}, {select_index[-1]}"
         limit_index = updated_query.upper().rfind('LIMIT')
         if limit_index != -1:
             updated_query = updated_query[:limit_index].rstrip()
-
+        updated_query = updated_query.split("SELECT", 1)
         # print(g.user.username)
         # user_data = get_user_data(g.user.username)
         ## Userbase site
@@ -2190,11 +2182,11 @@ def modify_query(original_qry, data):
         #         updated_query = f"{query_parts[0]} WHERE {condition_to_add} GROUP BY {query_parts[1]}"
         #     else:
         #         updated_query = f"{query_parts[0]} WHERE {condition_to_add}"
-        if "ORDER BY" in updated_query:
-            query_split = updated_query.split("ORDER BY")
-            # comma_separated = ', '.join(f'"{item}"' for item in new_columns)
-            updated_query = f"{query_split[0]}, {formatted_group_by} ORDER BY {query_split[1]}"
-        original_qry = select([text(updated_query)])
+        # if "ORDER BY" in updated_query:
+        #     query_split = updated_query.split("ORDER BY")
+        #     # comma_separated = ', '.join(f'"{item}"' for item in new_columns)
+        #     updated_query = f"{query_split[0]}, {formatted_group_by} ORDER BY {query_split[1]}"
+        original_qry = select([text(updated_query[-1])])
         return original_qry
     else:
-        return original_qry
+        return qry
