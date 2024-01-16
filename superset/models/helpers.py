@@ -1419,7 +1419,6 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         return col
 
     def get_volume_conditions(self, table_name):
-        columns_string = ','.join(columns)
         api_endpoint = f'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetDataFilterConditions?tableName={table_name}'
         try:
             response = requests.get(api_endpoint)
