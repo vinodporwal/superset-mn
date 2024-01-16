@@ -1418,9 +1418,9 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         col = self.make_sqla_column_compatible(col, label)
         return col
 
-    def get_volume_conditions(self, table_name, columns):
+    def get_volume_conditions(self, table_name):
         columns_string = ','.join(columns)
-        api_endpoint = f'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetDataFilterConditions?tableName={table_name}&filterColumns={columns_string}'
+        api_endpoint = f'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetDataFilterConditions?tableName={table_name}'
         try:
             response = requests.get(api_endpoint)
 
