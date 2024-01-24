@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     from superset.models.core import Database
     from superset.models.dashboard import Dashboard
     from superset.models.slice import Slice
+from flask import session
 
 # Realtime stats logger, a StatsD implementation exists
 STATS_LOGGER = DummyStatsLogger()
@@ -1704,7 +1705,9 @@ get_employee1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetEmploye
 get_site_url = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetMainSite'
 get_category1 = 'http://fleetmanager.mindnerves.com:10001/api/Logbook/GetCommonMaster?masterCategory='
 get_status1 = 'http://fleetmanager.mindnerves.com/api/Task/GetAllTaskMng'
-
+get_user_site = 'http://fleetmanager.mindnerves.com/api/User/GetSiteByUser?userName='
+get_xy_mapping = 'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetColumnXYMapping?tableName='
+get_column_condn = 'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetDataFilterConditions?tableName='
 
 from flask_login import login_user
 from superset import db, security_manager
@@ -1759,7 +1762,7 @@ class CustomAuthDBView(AuthDBView):
             user = self.appbuilder.sm.find_user(username=username)
             if not user:
                 user = self.create_user(username,first_name, last_name, email)
-
+            session['jwt_token'] = jwt_token
             login_user(user, remember=False)
             return redirect(redirect_url)
         elif g.user is not None and g.user.is_authenticated:

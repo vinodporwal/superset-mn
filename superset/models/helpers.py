@@ -94,7 +94,7 @@ if TYPE_CHECKING:
     from superset.connectors.sqla.models import SqlMetric, TableColumn
     from superset.db_engine_specs import BaseEngineSpec
     from superset.models.core import Database
-
+from superset.config import get_user_site
 
 config = app.config
 logger = logging.getLogger(__name__)
@@ -1419,7 +1419,8 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         return col
 
     def get_volume_conditions(self, table_name):
-        api_endpoint = f'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetDataFilterConditions?tableName={table_name}'
+        from superset.config import get_column_condn
+        api_endpoint = f'{get_column_condn}{table_name}'
         try:
             response = requests.get(api_endpoint)
 
@@ -2140,7 +2141,7 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
 
 
 def get_user_data(username):
-    url = f"http://fleetmanager.mindnerves.com/api/User/GetSiteByUser?userName={username}"
+    url = f"{get_user_site}{username}"
     try:
         response = requests.get(url)
         if response.status_code == 200:

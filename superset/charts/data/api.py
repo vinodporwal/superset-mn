@@ -56,6 +56,7 @@ if TYPE_CHECKING:
     from superset.common.query_context import QueryContext
 from superset.config import add_ticket_url, get_employee1, get_site_url, get_category1, get_status1
 logger = logging.getLogger(__name__)
+from flask import session
 
 
 class ChartDataRestApi(ChartRestApi):
@@ -66,9 +67,11 @@ class ChartDataRestApi(ChartRestApi):
     def add_ticket_api(self):
         try:
             data = request.get_json()
+            jwt_token = session.get('jwt_token', None)
             headers = {
                 'accept': '*/*',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {jwt_token}'
             }
 
             response = requests.post(add_ticket_url, headers=headers, json=data)

@@ -199,7 +199,8 @@ class GetExploreCommand(BaseCommand, ABC):
     def get_xy_mapping(self, table_name) -> Response:
         from flask import jsonify
         import requests
-        xymapping_api_url = f'http://fleetmanager.mindnerves.com:10005/api/Analyzer/GetColumnXYMapping?tableName={table_name}'
+        from superset.config import get_xy_mapping
+        xymapping_api_url = f'{get_xy_mapping}{table_name}'
 
         try:
             response = requests.get(xymapping_api_url)
