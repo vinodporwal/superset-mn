@@ -86,8 +86,14 @@ class ChartDataRestApi(ChartRestApi):
     @expose("/get_status", methods=["GET"])
     def get_status_data(self) -> Response:
         try:
+            jwt_token = session.get('jwt_token', None)
+            headers = {
+                'accept': '*/*',
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {jwt_token}'
+            }
             # Make a request to the other API to get ticket data
-            response = requests.get(get_status1)
+            response = requests.get(get_status1, headers=headers)
 
             # Check the response status
             if response.status_code == 200:
@@ -105,13 +111,19 @@ class ChartDataRestApi(ChartRestApi):
 
     @expose("/get_employee_data", methods=("GET",))
     def get_ticket_data(self) -> Response:
+        jwt_token = session.get('jwt_token', None)
+        headers = {
+            'accept': '*/*',
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {jwt_token}'
+        }
         employee_code = request.args.get('employeeCode')
         if not employee_code:
             return self.response_400(message="Missing 'employeeCode' parameter")
 
         get_employee_url = f'{get_employee1}{employee_code}'
         try:
-            response = requests.get(get_employee_url)
+            response = requests.get(get_employee_url, headers=headers)
 
             if response.status_code == 200:
                 ticket_data = response.json()
@@ -130,8 +142,14 @@ class ChartDataRestApi(ChartRestApi):
     @expose("/get_site", methods=("GET",))
     def get_site_data(self) -> Response:
         try:
+            jwt_token = session.get('jwt_token', None)
+            headers = {
+                'accept': '*/*',
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {jwt_token}'
+            }
             # Make a request to the other API to get ticket data
-            response = requests.get(get_site_url)
+            response = requests.get(get_site_url, headers=headers)
 
             # Check the response status
             if response.status_code == 200:
@@ -149,13 +167,19 @@ class ChartDataRestApi(ChartRestApi):
 
     @expose("/get_category", methods=("GET",))
     def get_category_data(self) -> Response:
+        jwt_token = session.get('jwt_token', None)
+        headers = {
+            'accept': '*/*',
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {jwt_token}'
+        }
         master_category = request.args.get('category')
         if not master_category:
             return self.response_400(message="Missing 'masterCategory' parameter")
         get_category_url = f'{get_category1}{master_category}'
         try:
             # Make a request to the other API to get ticket data
-            response = requests.get(get_category_url)
+            response = requests.get(get_category_url, headers=headers)
 
             # Check the response status
             if response.status_code == 200:

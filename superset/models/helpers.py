@@ -2155,7 +2155,6 @@ def get_user_data(username):
         return None
         
 def modify_query(qry, data):
-    print("original_qry==",qry)
     for column_info in data["columns"]:
         column_name = column_info["column_name"]
         column_query = column_info["columnQuery"]
