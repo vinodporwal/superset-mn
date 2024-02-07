@@ -2124,7 +2124,8 @@ class ExploreMixin:  # pylint: disable=too-many-public-methods
         if table_cond:
             # table_cond = matches.group(1)  # Extract the table name
             data = self.get_volume_conditions(table_cond)
-            if data.get("data"):
+            print("Data ==== ", data)
+            if isinstance(data, dict) and data.get("data"):
                 qry = modify_query(str(qry), data.get("data"))
                 if row_limit:
                     qry = qry.limit(row_limit)
