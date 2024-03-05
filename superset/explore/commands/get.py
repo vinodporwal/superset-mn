@@ -151,16 +151,19 @@ class GetExploreCommand(BaseCommand, ABC):
                     table_name =  datasource_data.get('table_name')
                 if table_name:
                     data = self.get_xy_mapping(table_name)
-                    if data.get('status'):
+                    if isinstance(data, dict) and data.get("status"):
                         x_axis = data.get('data').get('xaxis')
                         y_axis = data.get('data').get('yaxis')
+                        columns_to_keep = []
                         for column in datasource_data['columns']:
                             if column.get('column_name') in x_axis:
                                 column['is_type'] = 'x_axis'
+                                columns_to_keep.append(column)
                             elif column.get('column_name') in y_axis:
                                 column['is_type'] = 'y_axis'
-                            else:
-                                del column
+                                columns_to_keep.append(column)
+                        # Replace the original list with the filtered one
+                        datasource_data['columns'] = columns_to_keep
         except SupersetException as ex:
             print("##333",str(ex))
             message = ex.message
